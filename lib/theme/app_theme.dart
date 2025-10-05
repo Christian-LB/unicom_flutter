@@ -14,52 +14,52 @@ class AppTheme {
           fontSize: 48,
           fontWeight: FontWeight.bold,
           color: AppColors.foreground,
-          // fontFamily: 'SpaceGrotesk',
+          fontFamily: 'SpaceGrotesk',
         ),
         displayMedium: TextStyle(
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: AppColors.foreground,
-          // fontFamily: 'SpaceGrotesk',
+          fontFamily: 'SpaceGrotesk',
         ),
         displaySmall: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
           color: AppColors.foreground,
-          // fontFamily: 'SpaceGrotesk',
+          fontFamily: 'SpaceGrotesk',
         ),
         headlineLarge: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: AppColors.foreground,
-          // fontFamily: 'DMSans',
+          fontFamily: 'DMSans',
         ),
         headlineMedium: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.foreground,
-          // fontFamily: 'DMSans',
+          fontFamily: 'DMSans',
         ),
         headlineSmall: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppColors.foreground,
-          // fontFamily: 'DMSans',
+          fontFamily: 'DMSans',
         ),
         bodyLarge: TextStyle(
           fontSize: 16,
           color: AppColors.foreground,
-          // fontFamily: 'DMSans',
+          fontFamily: 'DMSans',
         ),
         bodyMedium: TextStyle(
           fontSize: 14,
           color: AppColors.foreground,
-          // fontFamily: 'DMSans',
+          fontFamily: 'DMSans',
         ),
         bodySmall: TextStyle(
           fontSize: 12,
           color: AppColors.mutedForeground,
-          // fontFamily: 'DMSans',
+          fontFamily: 'DMSans',
         ),
       ),
       appBarTheme: const AppBarTheme(
@@ -71,16 +71,16 @@ class AppTheme {
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.foreground,
-          // fontFamily: 'SpaceGrotesk',
+          fontFamily: 'SpaceGrotesk',
         ),
       ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: AppColors.card,
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        shadowColor: Colors.black.withValues(alpha: 0.1),
+        shadowColor: Colors.black.withOpacity(0.1),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -93,7 +93,7 @@ class AppTheme {
           textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            // fontFamily: 'DMSans',
+            fontFamily: 'DMSans',
           ),
         ),
       ),
@@ -107,7 +107,7 @@ class AppTheme {
           textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            // fontFamily: 'DMSans',
+            fontFamily: 'DMSans',
           ),
         ),
       ),
@@ -117,7 +117,7 @@ class AppTheme {
           textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            // fontFamily: 'DMSans',
+            fontFamily: 'DMSans',
           ),
         ),
       ),

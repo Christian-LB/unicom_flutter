@@ -20,6 +20,12 @@ import 'screens/profile_screen.dart';
 import 'screens/services_screen.dart';
 import 'screens/support_screen.dart';
 import 'screens/about_screen.dart';
+import 'providers/ticket_provider.dart';
+import 'screens/customer_tickets_screen.dart';
+import 'screens/admin_tickets_screen.dart';
+import 'screens/support_ticket_screen.dart';
+import 'screens/compare_screen.dart';
+import 'screens/catalog_detail_screen.dart';
 
 void main() {
   runApp(const UnicomApp());
@@ -35,6 +41,7 @@ class UnicomApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => QuoteProvider()),
+        ChangeNotifierProvider(create: (_) => TicketProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
@@ -83,6 +90,14 @@ class UnicomApp extends StatelessWidget {
           builder: (context, state) => const CatalogScreen(),
         ),
         GoRoute(
+          path: '/catalog/:id',
+          builder: (context, state) => CatalogDetailScreen(id: state.pathParameters['id']!),
+        ),
+        GoRoute(
+          path: '/compare',
+          builder: (context, state) => const CompareScreen(),
+        ),
+        GoRoute(
           path: '/services',
           builder: (context, state) => const ServicesScreen(),
         ),
@@ -119,8 +134,16 @@ class UnicomApp extends StatelessWidget {
           builder: (context, state) => const CustomerQuotesScreen(),
         ),
         GoRoute(
+          path: '/customer/tickets',
+          builder: (context, state) => const CustomerTicketsScreen(),
+        ),
+        GoRoute(
           path: '/customer/support',
           builder: (context, state) => const SupportScreen(),
+        ),
+        GoRoute(
+          path: '/support-ticket',
+          builder: (context, state) => const SupportTicketScreen(),
         ),
         
         // Protected routes
@@ -141,6 +164,10 @@ class UnicomApp extends StatelessWidget {
         GoRoute(
           path: '/quotes',
           builder: (context, state) => const AdminQuotesScreen(),
+        ),
+        GoRoute(
+          path: '/admin/tickets',
+          builder: (context, state) => const AdminTicketsScreen(),
         ),
         GoRoute(
           path: '/inventory',

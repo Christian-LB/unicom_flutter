@@ -7,7 +7,7 @@ import '../theme/colors.dart';
 class CustomNavigationBar extends StatelessWidget {
   final bool centered;
   
-  const CustomNavigationBar({super.key, this.centered = false});
+  const CustomNavigationBar({Key? key, this.centered = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -117,11 +117,11 @@ class CustomNavigationBar extends StatelessWidget {
     
     return Row(
       children: navItems.map((item) {
-        final isActive = _isActiveRoute(context, item['route']!);
+        final isActive = _isActiveRoute(context, item['route']);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: TextButton(
-            onPressed: () => context.go(item['route']!),
+            onPressed: () => context.go(item['route']),
             style: TextButton.styleFrom(
               foregroundColor: isActive ? AppColors.primary : AppColors.foreground,
               textStyle: const TextStyle(
@@ -129,7 +129,7 @@ class CustomNavigationBar extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            child: Text(item['label']!),
+            child: Text(item['label']),
           ),
         );
       }).toList(),
@@ -179,7 +179,7 @@ class CustomNavigationBar extends StatelessWidget {
   Widget _buildAdminDropdown(BuildContext context, user) {
     return PopupMenuButton<String>(
       child: CircleAvatar(
-        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+        backgroundColor: AppColors.primary.withOpacity(0.1),
         child: Text(
           user.name[0].toUpperCase(),
           style: const TextStyle(
@@ -282,8 +282,10 @@ class CustomNavigationBar extends StatelessWidget {
       return [
         {'route': '/customer/home', 'label': 'Home'},
         {'route': '/catalog', 'label': 'Catalog'},
+        {'route': '/compare', 'label': 'Compare'},
         {'route': '/quote', 'label': 'Get Quote'},
         {'route': '/customer/quotes', 'label': 'My Quotes'},
+        {'route': '/customer/tickets', 'label': 'My Tickets'},
         {'route': '/customer/support', 'label': 'Support'},
         {'route': '/dashboard', 'label': 'Dashboard'},
       ];
@@ -292,6 +294,7 @@ class CustomNavigationBar extends StatelessWidget {
         {'route': '/dashboard', 'label': 'Dashboard'},
         {'route': '/catalog', 'label': 'Catalog'},
         {'route': '/quotes', 'label': 'Quotes'},
+        {'route': '/admin/tickets', 'label': 'Support Tickets'},
         {'route': '/analytics', 'label': 'Analytics'},
         {'route': '/inventory', 'label': 'Inventory'},
       ];

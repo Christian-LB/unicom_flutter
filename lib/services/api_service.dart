@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/user.dart';
 import '../models/product.dart';
 import '../models/quote.dart';
+import '../models/ticket.dart';
 
 class ApiService {
   // Replace with your actual Vercel deployment URL
@@ -270,6 +271,76 @@ class ApiService {
       if (response.statusCode != 200) {
         final error = jsonDecode(response.body);
         throw Exception(error['error'] ?? 'Failed to delete quote');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  // Ticket endpoints
+  static Future<Ticket> createTicket(Map<String, dynamic> payload) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/tickets'),
+        headers: _headers,
+        body: jsonEncode(payload),
+      );
+
+      if (response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        return Ticket.fromJson(data['ticket'] as Map<String, dynamic>);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to create ticket');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  static Future<List<Ticket>> getTickets({
+    String? customerEmail,
+    String? status,
+  }) async {
+    try {
+      final queryParams = <String, String>{};
+      if (customerEmail != null && customerEmail.isNotEmpty) {
+        queryParams['customerEmail'] = customerEmail;
+      }
+      if (status != null && status.isNotEmpty) {
+        queryParams['status'] = status;
+      }
+
+      final uri = Uri.parse('$baseUrl/tickets').replace(queryParameters: queryParams);
+      final response = await http.get(uri, headers: _headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return (data['tickets'] as List)
+            .map((json) => Ticket.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception('Failed to fetch tickets');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  static Future<Ticket> updateTicket(String id, Map<String, dynamic> updates) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/tickets/$id'),
+        headers: _headers,
+        body: jsonEncode(updates),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return Ticket.fromJson(data['ticket'] as Map<String, dynamic>);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to update ticket');
       }
     } catch (e) {
       throw Exception('Network error: $e');

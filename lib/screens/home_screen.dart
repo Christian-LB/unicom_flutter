@@ -118,7 +118,7 @@ class HomeScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.muted.withValues(alpha: 0.3),
+        color: AppColors.muted.withOpacity(0.3),
       ),
       child: Column(
         children: [
@@ -181,7 +181,7 @@ class HomeScreen extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: AppColors.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -285,8 +285,8 @@ class HomeScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.primary.withValues(alpha: 0.2),
-                      AppColors.primary.withValues(alpha: 0.1),
+                      AppColors.primary.withOpacity(0.2),
+                      AppColors.primary.withOpacity(0.1),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
