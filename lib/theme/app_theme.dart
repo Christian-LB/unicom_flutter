@@ -74,7 +74,7 @@ class AppTheme {
           fontFamily: 'SpaceGrotesk',
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.card,
         elevation: 2,
         shape: RoundedRectangleBorder(

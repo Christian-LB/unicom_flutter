@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../widgets/navigation_bar.dart';
 import '../services/api_service.dart';
 import '../models/product.dart';
@@ -55,9 +54,9 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
                         children: [
                           Text(product!.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 8),
-                          Text(product!.brand ?? ''),
+                          Text(product!.brand),
                           const SizedBox(height: 16),
-                          Text(product!.description ?? ''),
+                          Text(product!.description),
                         ],
                       ),
                     ),

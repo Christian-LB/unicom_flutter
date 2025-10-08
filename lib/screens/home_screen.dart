@@ -19,7 +19,6 @@ class HomeScreen extends StatelessWidget {
                   _buildHeroSection(context),
                   _buildFeaturesSection(),
                   _buildCategoriesSection(context),
-                  _buildCTASection(context),
                   _buildFooter(),
                 ],
               ),

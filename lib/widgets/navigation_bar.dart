@@ -29,26 +29,32 @@ class CustomNavigationBar extends StatelessWidget {
               ),
             ],
           ),
-          child: Container(
+          child: SizedBox(
             height: 64, // h-16 equivalent
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: centered 
-                ? MainAxisAlignment.center 
-                : MainAxisAlignment.spaceBetween,
-              children: [
-                // Logo (only if not centered)
-                if (!centered) _buildLogo(context, user),
-                
-                // Navigation Links
-                _buildNavigationLinks(context, user),
-                
-                // Auth Section (only if not centered)
-                if (!centered) _buildAuthSection(context, user),
-                
-                // Logout button when centered
-                if (centered && user != null) _buildCenteredLogout(context),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: centered
+                  ? Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Centered navigation links
+                        _buildNavigationLinks(context, user),
+                        // Right-aligned logout button (if logged in)
+                        if (user != null)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: _buildLogoutButton(context),
+                          ),
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildLogo(context, user),
+                        _buildNavigationLinks(context, user),
+                        _buildAuthSection(context, user),
+                      ],
+                    ),
             ),
           ),
         );
@@ -117,11 +123,11 @@ class CustomNavigationBar extends StatelessWidget {
     
     return Row(
       children: navItems.map((item) {
-        final isActive = _isActiveRoute(context, item['route']);
+        final isActive = _isActiveRoute(context, item['route']!);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: TextButton(
-            onPressed: () => context.go(item['route']),
+            onPressed: () => context.go(item['route']!),
             style: TextButton.styleFrom(
               foregroundColor: isActive ? AppColors.primary : AppColors.foreground,
               textStyle: const TextStyle(
@@ -129,7 +135,7 @@ class CustomNavigationBar extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            child: Text(item['label']),
+            child: Text(item['label']!),
           ),
         );
       }).toList(),
@@ -252,19 +258,16 @@ class CustomNavigationBar extends StatelessWidget {
     );
   }
 
-  Widget _buildCenteredLogout(BuildContext context) {
-    return Positioned(
-      right: 16,
-      child: TextButton.icon(
-        onPressed: () {
-          context.read<AuthProvider>().logout();
-          context.go('/');
-        },
-        icon: const Icon(Icons.logout, size: 16),
-        label: const Text('Log out'),
-        style: TextButton.styleFrom(
-          foregroundColor: AppColors.mutedForeground,
-        ),
+  Widget _buildLogoutButton(BuildContext context) {
+    return TextButton.icon(
+      onPressed: () {
+        context.read<AuthProvider>().logout();
+        context.go('/');
+      },
+      icon: const Icon(Icons.logout, size: 16),
+      label: const Text('Log out'),
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.mutedForeground,
       ),
     );
   }
@@ -302,10 +305,11 @@ class CustomNavigationBar extends StatelessWidget {
   }
 
   bool _isActiveRoute(BuildContext context, String route) {
-    final currentRoute = GoRouterState.of(context).matchedLocation;
+    // Fallback to GoRouterState for broader version compatibility
+    final currentLocation = GoRouterState.of(context).matchedLocation;
     if (route == '/') {
-      return currentRoute == '/';
+      return currentLocation == '/';
     }
-    return currentRoute.startsWith(route);
+    return currentLocation.startsWith(route);
   }
 }

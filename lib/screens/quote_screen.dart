@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../widgets/navigation_bar.dart';
-import '../theme/colors.dart';
 
 class QuoteScreen extends StatelessWidget {
   const QuoteScreen({Key? key}) : super(key: key);
