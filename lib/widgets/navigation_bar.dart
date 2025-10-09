@@ -33,32 +33,51 @@ class CustomNavigationBar extends StatelessWidget {
             height: 64, // h-16 equivalent
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: centered
-                  ? Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Centered navigation links
-                        _buildNavigationLinks(context, user),
-                        // Right-aligned logout button (if logged in)
-                        if (user != null)
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: _buildLogoutButton(context),
-                          ),
-                      ],
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildLogo(context, user),
-                        _buildNavigationLinks(context, user),
-                        _buildAuthSection(context, user),
-                      ],
-                    ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Left: Hamburger + small gap + Logo
+                  Row(
+                    children: [
+                      _buildHamburgerMenu(context, user),
+                      const SizedBox(width: 8),
+                      _buildLogo(context, user),
+                    ],
+                  ),
+                  // Right: Auth section (login/register or user/admin controls)
+                  _buildAuthSection(context, user),
+                ],
+              ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildHamburgerMenu(BuildContext context, user) {
+    final navItems = _getNavItems(user);
+    return PopupMenuButton<String>(
+      tooltip: 'Menu',
+      icon: const Icon(Icons.menu),
+      itemBuilder: (context) {
+        return navItems.map((item) {
+          final route = item['route']!;
+          final label = item['label']!;
+          final isActive = _isActiveRoute(context, route);
+          return PopupMenuItem<String>(
+            value: route,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                color: isActive ? AppColors.primary : AppColors.foreground,
+              ),
+            ),
+          );
+        }).toList();
+      },
+      onSelected: (route) => context.go(route),
     );
   }
 
@@ -144,6 +163,49 @@ class CustomNavigationBar extends StatelessWidget {
 
   Widget _buildAuthSection(BuildContext context, user) {
     if (user == null) {
+      final width = MediaQuery.of(context).size.width;
+      final bool isSmall = width < 640; // mobile breakpoint (approx. tailwind sm)
+      if (isSmall) {
+        return PopupMenuButton<String>(
+          tooltip: 'Account',
+          icon: const Icon(Icons.person_outline),
+          itemBuilder: (context) => const [
+            PopupMenuItem(
+              value: 'login',
+              child: Row(
+                children: [
+                  Icon(Icons.login, size: 16),
+                  SizedBox(width: 8),
+                  Text('Customer Login'),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'register',
+              child: Row(
+                children: [
+                  Icon(Icons.person_add_alt, size: 16),
+                  SizedBox(width: 8),
+                  Text('Sign Up'),
+                ],
+              ),
+            ),
+            PopupMenuDivider(),
+            PopupMenuItem(
+              value: 'admin/login',
+              child: Row(
+                children: [
+                  Icon(Icons.admin_panel_settings, size: 16),
+                  SizedBox(width: 8),
+                  Text('Admin Login'),
+                ],
+              ),
+            ),
+          ],
+          onSelected: (value) => context.go('/$value'),
+        );
+      }
+      // Wide screens: show inline buttons consistent with theme
       return Row(
         children: [
           TextButton(
@@ -280,6 +342,7 @@ class CustomNavigationBar extends StatelessWidget {
         {'route': '/services', 'label': 'Services'},
         {'route': '/support', 'label': 'Support'},
         {'route': '/about', 'label': 'About'},
+        {'route': '/dashboard', 'label': 'Dashboard'},
       ];
     } else if (user.role == 'customer') {
       return [

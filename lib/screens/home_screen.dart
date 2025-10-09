@@ -139,26 +139,45 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 48),
           
-          Row(
-            children: [
-              Expanded(child: _buildFeatureCard(
-                icon: Icons.shopping_cart,
-                title: 'Wide Product Range',
-                description: 'Comprehensive selection of computer parts, accessories, and IT equipment from trusted brands',
-              )),
-              const SizedBox(width: 24),
-              Expanded(child: _buildFeatureCard(
-                icon: Icons.build,
-                title: 'Expert Support',
-                description: 'Professional technical support and personalized service for all your IT needs',
-              )),
-              const SizedBox(width: 24),
-              Expanded(child: _buildFeatureCard(
-                icon: Icons.people,
-                title: 'Local Community',
-                description: 'Serving individual consumers and small businesses with cost-efficient, reliable solutions',
-              )),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final double maxWidth = constraints.maxWidth;
+              double tileWidth = 360; // preferred card width
+              const double spacing = 24;
+              int columns = (maxWidth / (tileWidth + spacing)).floor().clamp(1, 4);
+              tileWidth = (maxWidth - (spacing * (columns - 1))) / columns;
+
+              return Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
+                children: [
+                  SizedBox(
+                    width: tileWidth,
+                    child: _buildFeatureCard(
+                      icon: Icons.shopping_cart,
+                      title: 'Wide Product Range',
+                      description: 'Comprehensive selection of computer parts, accessories, and IT equipment from trusted brands',
+                    ),
+                  ),
+                  SizedBox(
+                    width: tileWidth,
+                    child: _buildFeatureCard(
+                      icon: Icons.build,
+                      title: 'Expert Support',
+                      description: 'Professional technical support and personalized service for all your IT needs',
+                    ),
+                  ),
+                  SizedBox(
+                    width: tileWidth,
+                    child: _buildFeatureCard(
+                      icon: Icons.people,
+                      title: 'Local Community',
+                      description: 'Serving individual consumers and small businesses with cost-efficient, reliable solutions',
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -234,29 +253,51 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 48),
           
-          Row(
-            children: [
-              Expanded(child: _buildCategoryCard(
-                context,
-                icon: Icons.memory,
-                title: 'Computer Components',
-                description: 'CPUs, GPUs, motherboards, RAM, and more',
-              )),
-              const SizedBox(width: 24),
-              Expanded(child: _buildCategoryCard(
-                context,
-                icon: Icons.storage,
-                title: 'Storage Solutions',
-                description: 'SSDs, HDDs, external drives, and backup solutions',
-              )),
-              const SizedBox(width: 24),
-              Expanded(child: _buildCategoryCard(
-                context,
-                icon: Icons.monitor,
-                title: 'Peripherals',
-                description: 'Monitors, keyboards, mice, and accessories',
-              )),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // Responsive tile width: aim for 3 columns on wide screens, reduce on narrow
+              final double maxWidth = constraints.maxWidth;
+              double tileWidth = 360; // preferred width per card
+              final double spacing = 24;
+
+              // Ensure at least 1 card per row; cap at available width
+              int columns = (maxWidth / (tileWidth + spacing)).floor().clamp(1, 4);
+              tileWidth = (maxWidth - (spacing * (columns - 1))) / columns;
+
+              return Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
+                children: [
+                  SizedBox(
+                    width: tileWidth,
+                    child: _buildCategoryCard(
+                      context,
+                      icon: Icons.memory,
+                      title: 'Computer Components',
+                      description: 'CPUs, GPUs, motherboards, RAM, and more',
+                    ),
+                  ),
+                  SizedBox(
+                    width: tileWidth,
+                    child: _buildCategoryCard(
+                      context,
+                      icon: Icons.storage,
+                      title: 'Storage Solutions',
+                      description: 'SSDs, HDDs, external drives, and backup solutions',
+                    ),
+                  ),
+                  SizedBox(
+                    width: tileWidth,
+                    child: _buildCategoryCard(
+                      context,
+                      icon: Icons.monitor,
+                      title: 'Peripherals',
+                      description: 'Monitors, keyboards, mice, and accessories',
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -373,51 +414,72 @@ class HomeScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(child: _buildFooterColumn(
-                title: 'Unicom Technologies',
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final double maxWidth = constraints.maxWidth;
+              double tileWidth = 320; // preferred column width
+              const double spacing = 32;
+              int columns = (maxWidth / (tileWidth + spacing)).floor().clamp(1, 4);
+              tileWidth = (maxWidth - (spacing * (columns - 1))) / columns;
+
+              return Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
                 children: [
-                  const Text(
-                    'Your trusted local provider for electronics and IT solutions.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.mutedForeground,
+                  SizedBox(
+                    width: tileWidth,
+                    child: _buildFooterColumn(
+                      title: 'Unicom Technologies',
+                      children: const [
+                        Text(
+                          'Your trusted local provider for electronics and IT solutions.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.mutedForeground,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: tileWidth,
+                    child: _buildFooterColumn(
+                      title: 'Products',
+                      children: [
+                        _buildFooterLink('Computer Parts'),
+                        _buildFooterLink('Accessories'),
+                        _buildFooterLink('Storage'),
+                        _buildFooterLink('Peripherals'),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: tileWidth,
+                    child: _buildFooterColumn(
+                      title: 'Services',
+                      children: [
+                        _buildFooterLink('Technical Support'),
+                        _buildFooterLink('Installation'),
+                        _buildFooterLink('Consultation'),
+                        _buildFooterLink('Maintenance'),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: tileWidth,
+                    child: _buildFooterColumn(
+                      title: 'Company',
+                      children: [
+                        _buildFooterLink('About Us'),
+                        _buildFooterLink('Contact'),
+                        _buildFooterLink('Support'),
+                        _buildFooterLink('Privacy'),
+                      ],
                     ),
                   ),
                 ],
-              )),
-              const SizedBox(width: 32),
-              Expanded(child: _buildFooterColumn(
-                title: 'Products',
-                children: [
-                  _buildFooterLink('Computer Parts'),
-                  _buildFooterLink('Accessories'),
-                  _buildFooterLink('Storage'),
-                  _buildFooterLink('Peripherals'),
-                ],
-              )),
-              const SizedBox(width: 32),
-              Expanded(child: _buildFooterColumn(
-                title: 'Services',
-                children: [
-                  _buildFooterLink('Technical Support'),
-                  _buildFooterLink('Installation'),
-                  _buildFooterLink('Consultation'),
-                  _buildFooterLink('Maintenance'),
-                ],
-              )),
-              const SizedBox(width: 32),
-              Expanded(child: _buildFooterColumn(
-                title: 'Company',
-                children: [
-                  _buildFooterLink('About Us'),
-                  _buildFooterLink('Contact'),
-                  _buildFooterLink('Support'),
-                  _buildFooterLink('Privacy'),
-                ],
-              )),
-            ],
+              );
+            },
           ),
           const SizedBox(height: 32),
           const Divider(),
