@@ -28,7 +28,7 @@ class ServicesScreen extends StatelessWidget {
                       SizedBox(height: 12),
                       Text(
                         '• IT Hardware Procurement\n• Custom PC Builds & Enterprise Workstations\n• Network Design & Installation\n• Server Solutions & Storage\n• Maintenance & Support Contracts',
-                        textAlign: TextAlign.center,
+                        textAlign: TextAlign.start,
                         style: TextStyle(fontSize: 16, height: 1.6),
                       ),
                       SizedBox(height: 24),

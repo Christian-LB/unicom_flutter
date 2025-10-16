@@ -14,6 +14,8 @@ class CustomNavigationBar extends StatelessWidget {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         final user = authProvider.user;
+        final width = MediaQuery.of(context).size.width;
+        final bool isWideScreen = width >= 1024; // PC monitor breakpoint
         
         return Container(
           decoration: BoxDecoration(
@@ -36,14 +38,26 @@ class CustomNavigationBar extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Left: Hamburger + small gap + Logo
-                  Row(
-                    children: [
-                      _buildHamburgerMenu(context, user),
-                      const SizedBox(width: 8),
-                      _buildLogo(context, user),
-                    ],
-                  ),
+                  // Left: Hamburger menu (mobile) or Logo (wide screens)
+                  if (!isWideScreen)
+                    _buildHamburgerMenu(context, user)
+                  else
+                    _buildLogo(context, user),
+                  
+                  // Center: Logo (mobile) or Navigation links (wide screens)
+                  if (!isWideScreen)
+                    Expanded(
+                      child: Center(
+                        child: _buildLogo(context, user),
+                      ),
+                    )
+                  else if (isWideScreen) 
+                    Expanded(
+                      child: Center(
+                        child: _buildNavigationLinks(context, user),
+                      ),
+                    ),
+                  
                   // Right: Auth section (login/register or user/admin controls)
                   _buildAuthSection(context, user),
                 ],
@@ -141,14 +155,20 @@ class CustomNavigationBar extends StatelessWidget {
     final navItems = _getNavItems(user);
     
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: navItems.map((item) {
         final isActive = _isActiveRoute(context, item['route']!);
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: TextButton(
             onPressed: () => context.go(item['route']!),
             style: TextButton.styleFrom(
               foregroundColor: isActive ? AppColors.primary : AppColors.foreground,
+              backgroundColor: isActive ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
               textStyle: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,

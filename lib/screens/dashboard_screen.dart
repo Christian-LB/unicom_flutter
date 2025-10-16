@@ -41,20 +41,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           const CustomNavigationBar(),
           Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-                    // Top container (80% width) with welcome and subtitle
-                    Align(
-                      alignment: Alignment.center,
-                      child: Builder(
-                        builder: (context) {
-                          final width = MediaQuery.of(context).size.width * 0.8;
-                          final displayName = user?.name ?? 'User';
-                          return Container(
-                            width: width,
+            child: Align(
+              alignment: Alignment.topCenter, // Move content upward
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                     final double contentWidth =
+                         (constraints.maxWidth * 0.95).clamp(0, 973); // 90% width, max 1024
+
+                    return Container(
+                      width: contentWidth,
+                      alignment: Alignment.topCenter,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Welcome container
+                          Container(
+                            width: double.infinity,
                             decoration: BoxDecoration(
                               color: AppColors.card,
                               border: Border.all(color: AppColors.border),
@@ -67,12 +71,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ],
                             ),
-                            padding: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Welcome back, $displayName!',
+                                  'Welcome back, ${user?.name ?? 'User'}!',
                                   style: const TextStyle(
                                     fontSize: 30,
                                     color: AppColors.foreground,
@@ -88,26 +92,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      ),
-                    ),
+                          ),
 
-                    const SizedBox(height: 16),
+                          const SizedBox(height: 12),
 
-                    if (user != null) ...[
-                      _UserRoleBar(role: user.role),
-                      const SizedBox(height: 24),
-                    ],
+                          if (user != null) ...[
+                            _UserRoleBar(role: user.role),
+                            const SizedBox(height: 12),
+                          ],
 
-                    // Centered container with 80% width containing quotes and button
-                    Align(
-                      alignment: Alignment.center,
-                      child: Builder(
-                        builder: (context) {
-                          final width = MediaQuery.of(context).size.width * 0.8;
-                          return Container(
-                            width: width,
+                          // Recent Quotes container
+                          Container(
+                            width: double.infinity,
                             decoration: BoxDecoration(
                               color: AppColors.card,
                               border: Border.all(color: AppColors.border),
@@ -120,16 +116,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ],
                             ),
-                            padding: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Recent Quotes',
-                                  style: Theme.of(context).textTheme.headlineLarge,
+                                  style:
+                                      Theme.of(context).textTheme.headlineLarge,
                                 ),
                                 const SizedBox(height: 12),
-                                _QuotesSection(),
+                                const _QuotesSection(),
                                 const SizedBox(height: 16),
                                 Align(
                                   alignment: Alignment.centerRight,
@@ -141,12 +138,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ],
                             ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -157,11 +154,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 class _UserRoleBar extends StatelessWidget {
-  final String role; // 'admin' or 'customer'
+  final String role;
   const _UserRoleBar({required this.role});
 
   Color _backgroundForRole() {
-    // Use app theme colors, vary shade by role
     return role == 'admin' ? AppColors.primaryDark : AppColors.primaryLight;
   }
 
@@ -179,7 +175,8 @@ class _UserRoleBar extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.verified_user, color: AppColors.primaryForeground),
+              const Icon(Icons.verified_user,
+                  color: AppColors.primaryForeground),
               const SizedBox(width: 8),
               Text(
                 role == 'admin' ? 'Admin' : 'Customer',
@@ -192,9 +189,7 @@ class _UserRoleBar extends StatelessWidget {
           ),
           const Text(
             'Logged in',
-            style: TextStyle(
-              color: AppColors.primaryForeground,
-            ),
+            style: TextStyle(color: AppColors.primaryForeground),
           ),
         ],
       ),
@@ -203,6 +198,8 @@ class _UserRoleBar extends StatelessWidget {
 }
 
 class _QuotesSection extends StatelessWidget {
+  const _QuotesSection();
+
   @override
   Widget build(BuildContext context) {
     return Consumer<QuoteProvider>(
@@ -230,10 +227,9 @@ class _QuotesSection extends StatelessWidget {
           );
         }
 
-        // Show up to 5 recent quotes
         final items = quotes.quotes.take(5).toList();
         return Column(
-          children: items.map((q) => _QuoteListTile()).toList(),
+          children: items.map((q) => const _QuoteListTile()).toList(),
         );
       },
     );
@@ -245,8 +241,6 @@ class _QuoteListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // This lightweight tile reads the quote via an InheritedWidget-less approach by passing data in list builder
-    // For simplicity and theme consistency we'll not add navigation here
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 6),
