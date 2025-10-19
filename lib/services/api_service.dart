@@ -5,8 +5,8 @@ import '../models/quote.dart';
 import '../models/ticket.dart';
 
 class ApiService {
-  // Replace with your actual Vercel deployment URL
-  static const String baseUrl = 'https://unicom-catalog-7ekonxxuy-justpres-projects.vercel.app/api';
+  // Render backend base URL
+  static const String baseUrl = 'https://unicom-backend.onrender.com/api';
   
   static const Map<String, String> _headers = {
     'Content-Type': 'application/json',

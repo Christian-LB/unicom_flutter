@@ -185,6 +185,7 @@ class UnicomApp extends StatelessWidget {
     const protectedRoutes = [
       '/quote',
       '/profile',
+      '/dashboard',
       '/customer/quotes',
       '/customer/support',
       '/quotes',

@@ -252,12 +252,19 @@ class CustomNavigationBar extends StatelessWidget {
         ],
       );
     } else if (user.role == 'customer') {
-      return Text(
-        'Welcome, ${user.name}',
-        style: const TextStyle(
-          fontSize: 14,
-          color: AppColors.mutedForeground,
-        ),
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Welcome, ${user.name}',
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.mutedForeground,
+            ),
+          ),
+          const SizedBox(width: 12),
+          _buildLogoutButton(context),
+        ],
       );
     } else {
       return _buildAdminDropdown(context, user);
@@ -362,7 +369,6 @@ class CustomNavigationBar extends StatelessWidget {
         {'route': '/services', 'label': 'Services'},
         {'route': '/support', 'label': 'Support'},
         {'route': '/about', 'label': 'About'},
-        {'route': '/dashboard', 'label': 'Dashboard'},
       ];
     } else if (user.role == 'customer') {
       return [
