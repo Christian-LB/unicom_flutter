@@ -83,9 +83,19 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return (data['products'] as List)
-            .map((json) => Product.fromJson(json as Map<String, dynamic>))
-            .toList();
+        if (data is List) {
+          // Bare array response
+          return data
+              .map((json) => Product.fromJson(json as Map<String, dynamic>))
+              .toList();
+        } else if (data is Map<String, dynamic> && data['products'] is List) {
+          // Wrapped response { products: [...] }
+          return (data['products'] as List)
+              .map((json) => Product.fromJson(json as Map<String, dynamic>))
+              .toList();
+        } else {
+          throw Exception('Unexpected products response format');
+        }
       } else {
         throw Exception('Failed to fetch products');
       }
@@ -103,7 +113,15 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return Product.fromJson(data['product'] as Map<String, dynamic>);
+        if (data is Map<String, dynamic> && data['product'] is Map<String, dynamic>) {
+          // Wrapped response { product: { ... } }
+          return Product.fromJson(data['product'] as Map<String, dynamic>);
+        } else if (data is Map<String, dynamic>) {
+          // Direct product object
+          return Product.fromJson(data);
+        } else {
+          throw Exception('Unexpected product response format');
+        }
       } else if (response.statusCode == 404) {
         throw Exception('Product not found');
       } else {
