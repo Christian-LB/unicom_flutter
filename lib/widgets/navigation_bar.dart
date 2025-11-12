@@ -367,7 +367,6 @@ class CustomNavigationBar extends StatelessWidget {
         {'route': '/', 'label': 'Home'},
         {'route': '/catalog', 'label': 'Catalog'},
         {'route': '/services', 'label': 'Services'},
-        {'route': '/support', 'label': 'Support'},
         {'route': '/about', 'label': 'About'},
       ];
     } else if (user.role == 'customer') {
@@ -376,9 +375,6 @@ class CustomNavigationBar extends StatelessWidget {
         {'route': '/catalog', 'label': 'Catalog'},
         {'route': '/compare', 'label': 'Compare'},
         {'route': '/quote', 'label': 'Get Quote'},
-        {'route': '/customer/quotes', 'label': 'My Quotes'},
-        {'route': '/customer/tickets', 'label': 'My Tickets'},
-        {'route': '/customer/support', 'label': 'Support'},
         {'route': '/dashboard', 'label': 'Dashboard'},
       ];
     } else {
@@ -386,7 +382,6 @@ class CustomNavigationBar extends StatelessWidget {
         {'route': '/dashboard', 'label': 'Dashboard'},
         {'route': '/catalog', 'label': 'Catalog'},
         {'route': '/quotes', 'label': 'Quotes'},
-        {'route': '/admin/tickets', 'label': 'Support Tickets'},
         {'route': '/analytics', 'label': 'Analytics'},
         {'route': '/inventory', 'label': 'Inventory'},
       ];

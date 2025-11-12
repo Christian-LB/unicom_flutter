@@ -59,33 +59,19 @@ class ProductCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           
-                          // Brand and Rating
-                          Row(
-                            children: [
-                              Text(
-                                product.brand,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: AppColors.mutedForeground,
-                                ),
-                              ),
-                              const Spacer(),
-                              const Icon(Icons.star, color: AppColors.rating, size: 18),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${product.rating} (${product.reviews})',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.mutedForeground,
-                                ),
-                              ),
-                            ],
+                          // Brand
+                          Text(
+                            product.brand,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: AppColors.mutedForeground,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           
                           // Price
                           Text(
-                            '\$${product.price.toStringAsFixed(2)}',
+                            '₱${product.price.toStringAsFixed(2)}',
                             style: const TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
@@ -227,42 +213,13 @@ class ProductCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Brand and rating
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      product.brand,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.mutedForeground,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.star,
-                          size: 16,
-                          color: AppColors.rating,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          product.rating.toString(),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          '(${product.reviews})',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.mutedForeground,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                // Brand
+                Text(
+                  product.brand,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.mutedForeground,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 
@@ -292,7 +249,7 @@ class ProductCard extends StatelessWidget {
                 
                 // Price
                 Text(
-                  '\$${product.price.toStringAsFixed(2)}',
+                  '₱${product.price.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -303,36 +260,20 @@ class ProductCard extends StatelessWidget {
             ),
           ),
           
-          // Action buttons
+          // View Details button
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => _showProductDetails(context, product),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.primaryForeground,
-                    ),
-                    child: const Text('View Details'),
-                  ),
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _showProductDetails(context, product),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.primaryForeground,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: product.inStock ? () {
-                    // TODO: Add to cart functionality
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Added to cart')),
-                    );
-                  } : null,
-                  icon: const Icon(Icons.shopping_cart),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: AppColors.mutedForeground,
-                  ),
-                ),
-              ],
+                child: const Text('View Details'),
+              ),
             ),
           ),
         ],
