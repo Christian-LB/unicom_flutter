@@ -30,28 +30,28 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: (json['id'] ?? json['_id']) as String,
-      name: json['name'] as String,
-      description: json['description'] as String? ?? '',
-      price: (json['price'] as num).toDouble(),
-      category: (json['category'] as String?) ?? '',
-      brand: (json['brand'] as String?) ?? '',
-      image: json['image'] as String?,
-      inStock: json['inStock'] as bool? ?? ((json['stock'] as num?) ?? 0) > 0,
-      specifications: Map<String, String>.from(
-        json['specifications'] as Map<String, dynamic>? ?? {},
-      ),
-      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
-      reviews: json['reviews'] as int? ?? 0,
-      createdAt: json['createdAt'] != null 
-        ? DateTime.parse(json['createdAt'] as String)
-        : null,
-      updatedAt: json['updatedAt'] != null 
-        ? DateTime.parse(json['updatedAt'] as String)
-        : null,
-    );
-  }
+  return Product(
+    id: (json['id'] ?? json['_id'] ?? '').toString(),
+    name: (json['name'] ?? 'Unnamed Product').toString(),
+    description: (json['description'] ?? '').toString(),
+    price: (json['price'] != null) ? (json['price'] as num).toDouble() : 0.0,
+    category: (json['category'] ?? 'Uncategorized').toString(),
+    brand: (json['brand'] ?? 'Unknown Brand').toString(),
+    image: json['image']?.toString(),
+    inStock: json['inStock'] as bool? ?? ((json['stock'] as num?) ?? 0) > 0,
+    specifications: json['specifications'] != null 
+      ? Map<String, String>.from(json['specifications'] as Map<String, dynamic>)
+      : <String, String>{},
+    rating: (json['rating'] != null) ? (json['rating'] as num).toDouble() : 0.0,
+    reviews: (json['reviews'] as int?) ?? 0,
+    createdAt: json['createdAt'] != null 
+      ? DateTime.tryParse(json['createdAt'].toString()) 
+      : null,
+    updatedAt: json['updatedAt'] != null 
+      ? DateTime.tryParse(json['updatedAt'].toString())
+      : null,
+  );
+}
 
   Map<String, dynamic> toJson() {
     return {

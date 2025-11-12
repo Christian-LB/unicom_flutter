@@ -161,9 +161,10 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                             padding: const EdgeInsets.all(16),
                                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                               crossAxisCount: 3,
-                                              childAspectRatio: 0.8,
                                               crossAxisSpacing: 16,
                                               mainAxisSpacing: 16,
+                                              childAspectRatio: 0.7,  // Adjust this value as needed
+                                              mainAxisExtent: 500,   // Or use this to set a fixed height
                                             ),
                                             itemCount: productProvider.products.length,
                                             itemBuilder: (context, index) {
