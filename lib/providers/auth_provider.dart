@@ -24,9 +24,17 @@ class AuthProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userJson = prefs.getString('user');
+      final token = prefs.getString('auth_token');
+      
       if (userJson != null) {
         final userData = jsonDecode(userJson);
         _user = User.fromJson(userData);
+        
+        // Set the auth token if available
+        if (token != null && token.isNotEmpty) {
+          ApiService.setAuthToken(token);
+        }
+        
         notifyListeners();
       }
     } catch (e) {
@@ -38,6 +46,12 @@ class AuthProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user', jsonEncode(user.toJson()));
+      
+      // Save the auth token if available
+      final token = ApiService.authToken;
+      if (token != null && token.isNotEmpty) {
+        await prefs.setString('auth_token', token);
+      }
     } catch (e) {
       debugPrint('Error saving user to storage: $e');
     }
@@ -47,6 +61,8 @@ class AuthProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('user');
+      await prefs.remove('auth_token');
+      ApiService.setAuthToken(null);
     } catch (e) {
       debugPrint('Error clearing user from storage: $e');
     }
@@ -59,7 +75,14 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await ApiService.login(email, password);
       final userData = response['user'] as Map<String, dynamic>;
+      final token = response['token'] as String?;
+      
       _user = User.fromJson(userData);
+      
+      // Set the auth token
+      if (token != null && token.isNotEmpty) {
+        ApiService.setAuthToken(token);
+      }
       
       await _saveUserToStorage(_user!);
       notifyListeners();

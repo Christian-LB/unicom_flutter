@@ -15,10 +15,10 @@ class QuoteItem {
 
   factory QuoteItem.fromJson(Map<String, dynamic> json) {
     return QuoteItem(
-      productId: json['productId'] as String,
-      productName: json['productName'] as String,
+      productId: json['_id'] as String? ?? json['productId'] as String? ?? '',
+      productName: (json['name'] ?? json['productName']) as String,
       quantity: json['quantity'] as int,
-      unitPrice: (json['unitPrice'] as num).toDouble(),
+      unitPrice: ((json['price'] ?? json['unitPrice']) as num).toDouble(),
       customSpecs: json['customSpecs'] as String?,
     );
   }
@@ -96,21 +96,43 @@ class Quote {
   });
 
   factory Quote.fromJson(Map<String, dynamic> json) {
+    // Helper function to safely parse date strings
+    DateTime _parseDate(dynamic date) {
+      if (date == null) return DateTime.now();
+      try {
+        return date is DateTime ? date : DateTime.parse(date.toString());
+      } catch (_) {
+        return DateTime.now();
+      }
+    }
+
     return Quote(
-      id: json['id'] as String,
-      customerName: json['customerName'] as String,
-      customerEmail: json['customerEmail'] as String,
-      company: json['company'] as String?,
-      phone: json['phone'] as String?,
-      items: (json['items'] as List<dynamic>)
-          .map((item) => QuoteItem.fromJson(item as Map<String, dynamic>))
-          .toList(),
-      totalAmount: (json['totalAmount'] as num).toDouble(),
-      status: json['status'] as String,
-      notes: json['notes'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      expiresAt: DateTime.parse(json['expiresAt'] as String),
-      adminNotes: json['adminNotes'] as String?,
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      customerName: (json['customerName'] ?? '').toString(),
+      customerEmail: (json['customerEmail'] ?? '').toString(),
+      company: json['company']?.toString(),
+      phone: json['phone']?.toString(),
+      items: (json['items'] is List)
+          ? (json['items'] as List).map((item) {
+              if (item is Map<String, dynamic>) {
+                return QuoteItem.fromJson(item);
+              }
+              return QuoteItem(
+                productId: '',
+                productName: 'Unknown Item',
+                quantity: 0,
+                unitPrice: 0.0,
+              );
+            }).toList()
+          : <QuoteItem>[],
+      totalAmount: (json['totalAmount'] is num)
+          ? (json['totalAmount'] as num).toDouble()
+          : 0.0,
+      status: (json['status'] ?? 'pending').toString(),
+      notes: json['notes']?.toString(),
+      createdAt: _parseDate(json['createdAt']),
+      expiresAt: _parseDate(json['expiresAt'] ?? json['expiryDate']),
+      adminNotes: json['adminNotes']?.toString(),
     );
   }
 

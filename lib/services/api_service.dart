@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import '../models/product.dart';
 import '../models/quote.dart';
@@ -8,9 +9,28 @@ class ApiService {
   // Render backend base URL
   static const String baseUrl = 'https://unicom-backend.onrender.com/api';
   
-  static const Map<String, String> _headers = {
-    'Content-Type': 'application/json',
-  };
+  static String? _authToken;
+
+  // Set the auth token
+  static void setAuthToken(String? token) {
+    _authToken = token;
+  }
+  
+  // Get the auth token
+  static String? get authToken => _authToken;
+
+  // Get headers with auth token if available
+  static Map<String, String> get _headers {
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (_authToken != null && _authToken!.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $_authToken';
+    }
+    
+    return headers;
+  }
 
   // Auth endpoints
   static Future<Map<String, dynamic>> login(String email, String password) async {
@@ -201,21 +221,63 @@ class ApiService {
   // Quote endpoints
   static Future<Quote> createQuote(Quote quote) async {
     try {
+      // Convert quote to server-expected format
+      final quoteData = {
+        'customerName': quote.customerName,
+        'customerEmail': quote.customerEmail,
+        'company': quote.company,
+        'phone': quote.phone,
+        'items': quote.items.map((item) => {
+          'name': item.productName,
+          'price': item.unitPrice,
+          'quantity': item.quantity,
+          'customSpecs': item.customSpecs,
+        }).toList(),
+        'totalAmount': quote.totalAmount,
+        'status': quote.status,
+        'notes': quote.notes,
+        'expiresAt': quote.expiresAt?.toIso8601String(),
+      };
+
+      final url = Uri.parse('$baseUrl/quotes');
+      final body = jsonEncode(quoteData);
+      
+      print('Sending request to: $url');
+      print('Headers: $_headers');
+      print('Request body: $body');
+      
       final response = await http.post(
-        Uri.parse('$baseUrl/quotes'),
+        url,
         headers: _headers,
-        body: jsonEncode(quote.toJson()),
+        body: body,
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        return Quote.fromJson(data['quote'] as Map<String, dynamic>);
+        try {
+          final data = jsonDecode(response.body);
+          // Parse the response data directly since the server returns the quote at the top level
+          return Quote.fromJson(data as Map<String, dynamic>);
+        } catch (e) {
+          throw Exception('Error parsing response: $e');
+        }
       } else {
-        final error = jsonDecode(response.body);
-        throw Exception(error['error'] ?? 'Failed to create quote');
+        String errorMessage = 'Failed to create quote. Status: ${response.statusCode}';
+        try {
+          final errorData = jsonDecode(response.body);
+          errorMessage = errorData['error'] ?? errorData['message'] ?? errorMessage;
+        } catch (_) {
+          // If we can't parse the error response, use the raw response
+          errorMessage = '${response.statusCode}: ${response.body}';
+        }
+        throw Exception(errorMessage);
       }
+    } on http.ClientException catch (e) {
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
-      throw Exception('Network error: $e');
+      throw Exception('Failed to create quote: $e');
     }
   }
 
