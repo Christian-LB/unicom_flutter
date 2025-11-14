@@ -71,6 +71,7 @@ class ApiService {
     String? search,
     String? category,
     List<String>? ids,
+    Duration timeout = const Duration(seconds: 10),
   }) async {
     try {
       final queryParams = <String, String>{};
@@ -79,28 +80,39 @@ class ApiService {
       if (ids != null && ids.isNotEmpty) queryParams['ids'] = ids.join(',');
 
       final uri = Uri.parse('$baseUrl/products').replace(queryParameters: queryParams);
-      final response = await http.get(uri, headers: _headers);
+      final response = await http.get(
+        uri,
+        headers: _headers,
+      ).timeout(
+        timeout,
+        onTimeout: () {
+          throw Exception('Request timed out after ${timeout.inSeconds} seconds');
+        },
+      );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is List) {
-          // Bare array response
           return data
               .map((json) => Product.fromJson(json as Map<String, dynamic>))
               .toList();
         } else if (data is Map<String, dynamic> && data['products'] is List) {
-          // Wrapped response { products: [...] }
           return (data['products'] as List)
               .map((json) => Product.fromJson(json as Map<String, dynamic>))
               .toList();
         } else {
-          throw Exception('Unexpected products response format');
+          throw Exception('Unexpected response format: ${response.body}');
         }
       } else {
-        throw Exception('Failed to fetch products');
+        final error = jsonDecode(response.body);
+        throw Exception(error['message'] ?? 'Failed to fetch products. Status code: ${response.statusCode}');
       }
+    } on http.ClientException catch (e) {
+      throw Exception('Network error: ${e.message}');
+    } on FormatException catch (e) {
+      throw Exception('Error parsing response: ${e.message}');
     } catch (e) {
-      throw Exception('Network error: $e');
+      throw Exception('An unexpected error occurred: $e');
     }
   }
 
@@ -114,10 +126,8 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic> && data['product'] is Map<String, dynamic>) {
-          // Wrapped response { product: { ... } }
           return Product.fromJson(data['product'] as Map<String, dynamic>);
         } else if (data is Map<String, dynamic>) {
-          // Direct product object
           return Product.fromJson(data);
         } else {
           throw Exception('Unexpected product response format');
@@ -215,23 +225,28 @@ class ApiService {
   }) async {
     try {
       final queryParams = <String, String>{};
-      if (customerEmail != null && customerEmail.isNotEmpty) {
-        queryParams['customerEmail'] = customerEmail;
-      }
-      if (status != null && status.isNotEmpty) {
-        queryParams['status'] = status;
-      }
+      if (customerEmail != null) queryParams['customerEmail'] = customerEmail;
+      if (status != null) queryParams['status'] = status;
 
       final uri = Uri.parse('$baseUrl/quotes').replace(queryParameters: queryParams);
       final response = await http.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return (data['quotes'] as List)
-            .map((json) => Quote.fromJson(json as Map<String, dynamic>))
-            .toList();
+        if (data is List) {
+          return data
+              .map((json) => Quote.fromJson(json as Map<String, dynamic>))
+              .toList();
+        } else if (data is Map<String, dynamic> && data['quotes'] is List) {
+          return (data['quotes'] as List)
+              .map((json) => Quote.fromJson(json as Map<String, dynamic>))
+              .toList();
+        } else {
+          throw Exception('Unexpected quotes response format');
+        }
       } else {
-        throw Exception('Failed to fetch quotes');
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to fetch quotes');
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -260,7 +275,7 @@ class ApiService {
 
   static Future<Quote> updateQuote(String id, Map<String, dynamic> updates) async {
     try {
-      final response = await http.patch(
+      final response = await http.put(
         Uri.parse('$baseUrl/quotes/$id'),
         headers: _headers,
         body: jsonEncode(updates),
@@ -321,23 +336,28 @@ class ApiService {
   }) async {
     try {
       final queryParams = <String, String>{};
-      if (customerEmail != null && customerEmail.isNotEmpty) {
-        queryParams['customerEmail'] = customerEmail;
-      }
-      if (status != null && status.isNotEmpty) {
-        queryParams['status'] = status;
-      }
+      if (customerEmail != null) queryParams['customerEmail'] = customerEmail;
+      if (status != null) queryParams['status'] = status;
 
       final uri = Uri.parse('$baseUrl/tickets').replace(queryParameters: queryParams);
       final response = await http.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return (data['tickets'] as List)
-            .map((json) => Ticket.fromJson(json as Map<String, dynamic>))
-            .toList();
+        if (data is List) {
+          return data
+              .map((json) => Ticket.fromJson(json as Map<String, dynamic>))
+              .toList();
+        } else if (data is Map<String, dynamic> && data['tickets'] is List) {
+          return (data['tickets'] as List)
+              .map((json) => Ticket.fromJson(json as Map<String, dynamic>))
+              .toList();
+        } else {
+          throw Exception('Unexpected tickets response format');
+        }
       } else {
-        throw Exception('Failed to fetch tickets');
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to fetch tickets');
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -366,9 +386,8 @@ class ApiService {
 
   // Utility methods
   static String getErrorMessage(dynamic error) {
-    if (error is Exception) {
-      return error.toString().replaceFirst('Exception: ', '');
-    }
-    return 'An unexpected error occurred';
+    if (error is String) return error;
+    if (error is Exception) return error.toString();
+    return 'An unknown error occurred';
   }
 }
