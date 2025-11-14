@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../models/product.dart';
+import '../providers/compare_provider.dart';
 import '../theme/colors.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
-  
+
   const ProductCard({Key? key, required this.product}) : super(key: key);
 
   void _showProductDetails(BuildContext context, Product product) {
@@ -29,24 +30,80 @@ class ProductCard extends StatelessWidget {
                     Container(
                       width: MediaQuery.of(context).size.width * 0.35,
                       margin: const EdgeInsets.only(right: 16),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: CachedNetworkImage(
-                          imageUrl: product.image ?? 'https://via.placeholder.com/300',
-                          fit: BoxFit.cover,
-                          height: MediaQuery.of(context).size.height * 0.7,
-                          placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(),
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(12),
+                            ),
+                            child: CachedNetworkImage(
+                              imageUrl: product.image ??
+                                  'https://via.placeholder.com/300',
+                              fit: BoxFit.cover,
+                              height:
+                                  MediaQuery.of(context).size.height * 0.7,
+                              placeholder: (context, url) => Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.7,
+                                color: Colors.grey[200],
+                                child: const Center(
+                                    child: CircularProgressIndicator()),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.7,
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.error),
+                              ),
+                            ),
                           ),
-                          errorWidget: (context, url, error) => const Icon(Icons.error),
-                        ),
+
+                          // Compare Checkbox
+                          Positioned(
+                            top: 8,
+                            left: 8,
+                            child: Consumer<CompareProvider>(
+                              builder: (context, compareProvider, _) {
+                                final isInCompare =
+                                    compareProvider.isInCompare(product);
+
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.9),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Checkbox(
+                                    value: isInCompare,
+                                    onChanged: (value) {
+                                      if (value == true &&
+                                          compareProvider.count >= 4) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'You can compare up to 4 products at a time',
+                                            ),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      } else {
+                                        compareProvider.toggleProduct(product);
+                                      }
+                                    },
+                                    activeColor: AppColors.primary,
+                                    shape: const CircleBorder(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    
+
                     // Right side - Details
                     Expanded(
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Product Name
@@ -58,7 +115,7 @@ class ProductCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          
+
                           // Brand
                           Text(
                             product.brand,
@@ -68,7 +125,7 @@ class ProductCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Price
                           Text(
                             '₱${product.price.toStringAsFixed(2)}',
@@ -79,7 +136,7 @@ class ProductCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          
+
                           // Description
                           const Text(
                             'Description',
@@ -94,7 +151,7 @@ class ProductCard extends StatelessWidget {
                             style: const TextStyle(fontSize: 15),
                           ),
                           const SizedBox(height: 24),
-                          
+
                           // Specifications
                           if (product.specifications.isNotEmpty) ...[
                             const Text(
@@ -107,7 +164,8 @@ class ProductCard extends StatelessWidget {
                             const SizedBox(height: 8),
                             ...product.specifications.entries.map(
                               (entry) => Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4.0),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -121,7 +179,8 @@ class ProductCard extends StatelessWidget {
                                     Expanded(
                                       child: Text(
                                         entry.value,
-                                        style: const TextStyle(fontSize: 14),
+                                        style:
+                                            const TextStyle(fontSize: 14),
                                       ),
                                     ),
                                   ],
@@ -129,18 +188,20 @@ class ProductCard extends StatelessWidget {
                               ),
                             ),
                           ],
-                          
+
                           const SizedBox(height: 32),
-                          
+
                           // Close Button
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () => Navigator.pop(context),
                               style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                                 backgroundColor: AppColors.primary,
-                                foregroundColor: AppColors.primaryForeground,
+                                foregroundColor:
+                                    AppColors.primaryForeground,
                               ),
                               child: const Text(
                                 'Close',
@@ -163,8 +224,12 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compareProvider = Provider.of<CompareProvider>(context);
+    final isInCompare = compareProvider.isInCompare(product);
+
     return Card(
       elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -173,7 +238,8 @@ class ProductCard extends StatelessWidget {
             height: 200,
             width: double.infinity,
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(8)),
               image: DecorationImage(
                 image: CachedNetworkImageProvider(
                   product.image ?? 'https://via.placeholder.com/300',
@@ -188,9 +254,12 @@ class ProductCard extends StatelessWidget {
                   top: 8,
                   right: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: product.inStock ? AppColors.badgeSuccess : AppColors.badgeError,
+                      color: product.inStock
+                          ? AppColors.badgeSuccess
+                          : AppColors.badgeError,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -203,10 +272,40 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                // Compare checkbox
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Checkbox(
+                      value: isInCompare,
+                      onChanged: (value) {
+                        if (value == true && compareProvider.count >= 4) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'You can compare up to 4 products at a time'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        } else {
+                          compareProvider.toggleProduct(product);
+                        }
+                      },
+                      activeColor: AppColors.primary,
+                      shape: const CircleBorder(),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-          
+
           // Content section
           Padding(
             padding: const EdgeInsets.all(16),
@@ -222,7 +321,7 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                
+
                 // Product name
                 Text(
                   product.name,
@@ -234,7 +333,7 @@ class ProductCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
-                
+
                 // Description
                 Text(
                   product.description,
@@ -246,7 +345,7 @@ class ProductCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Price
                 Text(
                   '₱${product.price.toStringAsFixed(2)}',
@@ -259,7 +358,7 @@ class ProductCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // View Details button
           Padding(
             padding: const EdgeInsets.all(16),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../widgets/navigation_bar.dart';
 import '../widgets/product_card.dart';
 import '../providers/product_provider.dart';
+import '../providers/compare_provider.dart';
 import '../theme/colors.dart';
 
 class CatalogScreen extends StatefulWidget {
@@ -35,6 +37,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       body: Column(
         children: [
           const CustomNavigationBar(),
+          // Catalog content
           Expanded(
             child: Center(
               child: ConstrainedBox(
@@ -63,54 +66,108 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                   },
                                 ),
                                 const SizedBox(height: 16),
-                                
+
                                 // Category filter
                                 if (productProvider.categories.isNotEmpty)
-                                  SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      children: [
-                                        FilterChip(
-                                          label: const Text('All'),
-                                          selected: productProvider.selectedCategory == null,
-                                          onSelected: (selected) {
-                                            if (selected) {
-                                              productProvider.clearFilters();
-                                            }
-                                          },
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Row(
+                                            children: [
+                                              FilterChip(
+                                                label: const Text('All'),
+                                                selected:
+                                                    productProvider
+                                                            .selectedCategory ==
+                                                        null,
+                                                onSelected: (selected) {
+                                                  if (selected) {
+                                                    productProvider
+                                                        .clearFilters();
+                                                  }
+                                                },
+                                              ),
+                                              const SizedBox(width: 8),
+                                              ...productProvider.categories
+                                                  .map((category) {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          right: 8),
+                                                  child: FilterChip(
+                                                    label: Text(category),
+                                                    selected: productProvider
+                                                            .selectedCategory ==
+                                                        category,
+                                                    onSelected: (selected) {
+                                                      if (selected) {
+                                                        productProvider
+                                                            .filterByCategory(
+                                                                category);
+                                                      } else {
+                                                        productProvider
+                                                            .clearFilters();
+                                                      }
+                                                    },
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ],
+                                          ),
                                         ),
-                                        const SizedBox(width: 8),
-                                        ...productProvider.categories.map((category) {
-                                          return Padding(
-                                            padding: const EdgeInsets.only(right: 8),
-                                            child: FilterChip(
-                                              label: Text(category),
-                                              selected: productProvider.selectedCategory == category,
-                                              onSelected: (selected) {
-                                                if (selected) {
-                                                  productProvider.filterByCategory(category);
-                                                } else {
-                                                  productProvider.clearFilters();
-                                                }
-                                              },
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Consumer<CompareProvider>(
+                                        builder:
+                                            (context, compareProvider, _) {
+                                          final compareCount =
+                                              compareProvider.count;
+                                          if (compareCount == 0) {
+                                            return const SizedBox.shrink();
+                                          }
+                                          return ElevatedButton.icon(
+                                            onPressed: () =>
+                                                context.go('/compare'),
+                                            icon: const Icon(
+                                                Icons.compare_arrows,
+                                                size: 18),
+                                            label: Text(
+                                                'Compare ($compareCount)'),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppColors.primary,
+                                              foregroundColor: Colors.white,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
                                             ),
                                           );
-                                        }),
-                                      ],
-                                    ),
+                                        },
+                                      ),
+                                    ],
                                   ),
                               ],
                             ),
                           ),
-                          
+
                           // Products grid
                           Expanded(
                             child: productProvider.isLoading
-                                ? const Center(child: CircularProgressIndicator())
+                                ? const Center(
+                                    child: CircularProgressIndicator(),
+                                  )
                                 : productProvider.error != null
                                     ? Center(
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             const Icon(
                                               Icons.error_outline,
@@ -139,19 +196,22 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                     : productProvider.products.isEmpty
                                         ? const Center(
                                             child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 Icon(
                                                   Icons.inventory_2_outlined,
                                                   size: 64,
-                                                  color: AppColors.mutedForeground,
+                                                  color: AppColors
+                                                      .mutedForeground,
                                                 ),
                                                 SizedBox(height: 16),
                                                 Text(
                                                   'No products found',
                                                   style: TextStyle(
                                                     fontSize: 18,
-                                                    color: AppColors.mutedForeground,
+                                                    color: AppColors
+                                                        .mutedForeground,
                                                   ),
                                                 ),
                                               ],
@@ -159,17 +219,21 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                           )
                                         : GridView.builder(
                                             padding: const EdgeInsets.all(16),
-                                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                            gridDelegate:
+                                                const SliverGridDelegateWithFixedCrossAxisCount(
                                               crossAxisCount: 3,
                                               crossAxisSpacing: 16,
                                               mainAxisSpacing: 16,
-                                              childAspectRatio: 0.7,  // Adjust this value as needed
-                                              mainAxisExtent: 500,   // Or use this to set a fixed height
+                                              childAspectRatio: 0.7,
+                                              mainAxisExtent: 500,
                                             ),
-                                            itemCount: productProvider.products.length,
+                                            itemCount: productProvider
+                                                .products.length,
                                             itemBuilder: (context, index) {
-                                              final product = productProvider.products[index];
-                                              return ProductCard(product: product);
+                                              final product = productProvider
+                                                  .products[index];
+                                              return ProductCard(
+                                                  product: product);
                                             },
                                           ),
                           ),

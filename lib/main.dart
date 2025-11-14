@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'providers/auth_provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/quote_provider.dart';
+import 'providers/compare_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/catalog_screen.dart';
@@ -42,6 +43,7 @@ class UnicomApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => QuoteProvider()),
         ChangeNotifierProvider(create: (_) => TicketProvider()),
+        ChangeNotifierProvider(create: (_) => CompareProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
