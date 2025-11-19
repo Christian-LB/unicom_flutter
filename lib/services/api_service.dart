@@ -288,23 +288,34 @@ class ApiService {
     String? userId,
   }) async {
     try {
-      final queryParams = <String, String>{};
-      if (customerEmail != null && customerEmail.isNotEmpty) {
-        queryParams['customerEmail'] = customerEmail;
-      }
-      if (customerName != null && customerName.isNotEmpty) {
-        queryParams['customerName'] = customerName;
-      }
-      if (status != null && status.isNotEmpty) {
-        queryParams['status'] = status;
-      }
-      // Optional: filter by creator if needed elsewhere
+      // If userId is provided, use the /quotes/my endpoint for customer-specific quotes
+      // Otherwise, use /quotes with query parameters for admin queries
+      final Uri uri;
       if (userId != null && userId.isNotEmpty) {
-        queryParams['createdBy'] = userId;
+        // Customer endpoint - no query parameters needed (auth token identifies user)
+        uri = Uri.parse('$baseUrl/quotes/my');
+      } else {
+        // Admin endpoint - use query parameters for filtering
+        final queryParams = <String, String>{};
+        if (customerEmail != null && customerEmail.isNotEmpty) {
+          queryParams['customerEmail'] = customerEmail;
+        }
+        if (customerName != null && customerName.isNotEmpty) {
+          queryParams['customerName'] = customerName;
+        }
+        if (status != null && status.isNotEmpty) {
+          queryParams['status'] = status;
+        }
+        uri = Uri.parse('$baseUrl/quotes').replace(queryParameters: queryParams);
       }
 
-      final uri = Uri.parse('$baseUrl/quotes').replace(queryParameters: queryParams);
+      print('DEBUG: getQuotes URI: $uri');
+      print('DEBUG: getQuotes Headers: $_headers');
+      
       final response = await http.get(uri, headers: _headers);
+
+      print('DEBUG: getQuotes Response Status: ${response.statusCode}');
+      print('DEBUG: getQuotes Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

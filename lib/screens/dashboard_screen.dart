@@ -35,9 +35,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // Load quotes filtered by the logged-in user's email/name
       final email = auth.user!.email;
       final userId = auth.user!.id;
+      print('DEBUG: Dashboard loading quotes for userId: $userId, email: $email');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         quotes.loadCustomerQuotes(
-          customerEmail: email,
+          customerEmail: null, // Rely on userId to avoid potential email mismatch
           userId: userId,
         );
       });
