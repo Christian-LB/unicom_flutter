@@ -25,7 +25,9 @@ class QuoteProvider extends ChangeNotifier {
 
   Future<void> loadQuotes({
     String? customerEmail,
+    String? customerName,
     String? status,
+    String? userId,
   }) async {
     _setLoading(true);
     _clearError();
@@ -33,7 +35,9 @@ class QuoteProvider extends ChangeNotifier {
     try {
       _quotes = await ApiService.getQuotes(
         customerEmail: customerEmail,
+        customerName: customerName,
         status: status,
+        userId: userId,
       );
       _customerEmail = customerEmail;
       _selectedStatus = status;
@@ -46,8 +50,16 @@ class QuoteProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> loadCustomerQuotes(String customerEmail) async {
-    await loadQuotes(customerEmail: customerEmail);
+  Future<void> loadCustomerQuotes({
+    String? customerEmail,
+    String? customerName,
+    String? userId,
+  }) async {
+    await loadQuotes(
+      customerEmail: customerEmail,
+      customerName: customerName,
+      userId: userId,
+    );
   }
 
   Future<void> loadAdminQuotes({String? status}) async {
@@ -81,7 +93,7 @@ class QuoteProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> createQuote(Quote quote) async {
+  Future<Quote?> createQuote(Quote quote) async {
     _setLoading(true);
     _clearError();
 
@@ -90,10 +102,10 @@ class QuoteProvider extends ChangeNotifier {
       _quotes.insert(0, newQuote);
       _filteredQuotes = List.from(_quotes);
       notifyListeners();
-      return true;
+      return newQuote;
     } catch (e) {
       _setError(ApiService.getErrorMessage(e));
-      return false;
+      return null;
     } finally {
       _setLoading(false);
     }

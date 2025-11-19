@@ -283,12 +283,25 @@ class ApiService {
 
   static Future<List<Quote>> getQuotes({
     String? customerEmail,
+    String? customerName,
     String? status,
+    String? userId,
   }) async {
     try {
       final queryParams = <String, String>{};
-      if (customerEmail != null) queryParams['customerEmail'] = customerEmail;
-      if (status != null) queryParams['status'] = status;
+      if (customerEmail != null && customerEmail.isNotEmpty) {
+        queryParams['customerEmail'] = customerEmail;
+      }
+      if (customerName != null && customerName.isNotEmpty) {
+        queryParams['customerName'] = customerName;
+      }
+      if (status != null && status.isNotEmpty) {
+        queryParams['status'] = status;
+      }
+      // Optional: filter by creator if needed elsewhere
+      if (userId != null && userId.isNotEmpty) {
+        queryParams['createdBy'] = userId;
+      }
 
       final uri = Uri.parse('$baseUrl/quotes').replace(queryParameters: queryParams);
       final response = await http.get(uri, headers: _headers);

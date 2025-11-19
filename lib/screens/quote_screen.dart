@@ -6,6 +6,10 @@ import '../services/api_service.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/colors.dart';
 import '../widgets/navigation_bar.dart';  // Added import for CustomNavigationBar
+import 'package:provider/provider.dart';
+import '../providers/quote_provider.dart';
+import '../utils/export_pdf_stub.dart'
+    if (dart.library.html) '../utils/export_pdf_web.dart';
 
 class QuoteScreen extends StatefulWidget {
   static const routeName = '/get-quote';
@@ -36,6 +40,23 @@ class _QuoteScreenState extends State<QuoteScreen> {
 
   double _totalAmount = 0.0;
   bool _isLoading = false;
+
+  Future<void> _exportQuote(String id) async {
+    try {
+      await exportQuotePdfById(id);
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e.toString();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to export PDF: $msg')),
+      );
+      if (msg.contains('Not authenticated') || msg.contains('401')) {
+        // Give the user a brief moment to see the snackbar, then redirect to login
+        await Future.delayed(const Duration(milliseconds: 300));
+        if (mounted) context.go('/login');
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -148,17 +169,32 @@ class _QuoteScreenState extends State<QuoteScreen> {
         expiresAt: now.add(const Duration(days: 30)),
       );
 
-      final created = await ApiService.createQuote(quote);
+      // Create the quote through the provider so the dashboard can immediately reflect the new item
+      final created = await context.read<QuoteProvider>().createQuote(quote);
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Quote request submitted successfully!")),
-      );
+      // Dismiss any focused fields and associated overlays (e.g., Autocomplete)
+      FocusScope.of(context).unfocus();
 
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      if (mounted) context.go('/');
+      if (created != null) {
+        final exportAction = SnackBarAction(
+          label: 'Export PDF',
+          onPressed: () => _exportQuote(created.id),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Quote request submitted successfully!'),
+            action: exportAction,
+          ),
+        );
+        await Future.delayed(const Duration(milliseconds: 300));
+        // Stay on this page; Dashboard will show the new quote when visited next via provider state
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to submit quote. Please try again.")),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
 
@@ -270,11 +306,8 @@ class _QuoteScreenState extends State<QuoteScreen> {
                                           _updateItem(index, 'unitPrice', product.price);
                                         },
                                         fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                                            if (mounted) {
-                                              controller.text = item['productName'];
-                                            }
-                                          });
+                                          // Do not mutate controller.text during build; RawAutocomplete will
+                                          // manage text on selection. We only mirror user input to our state.
                                           return TextFormField(
                                             controller: controller,
                                             focusNode: focusNode,

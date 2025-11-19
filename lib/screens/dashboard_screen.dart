@@ -5,6 +5,7 @@ import '../widgets/navigation_bar.dart';
 import '../providers/auth_provider.dart';
 import '../providers/quote_provider.dart';
 import '../theme/colors.dart';
+import '../models/quote.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -19,14 +20,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_initialized) {
-      final auth = context.read<AuthProvider>();
-      final quotes = context.read<QuoteProvider>();
-      if (auth.isAdmin) {
+
+    if (_initialized) return;
+
+    final auth = Provider.of<AuthProvider>(context); // listen for auth/user changes
+    final quotes = context.read<QuoteProvider>();
+
+    if (auth.isAdmin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         quotes.loadAdminQuotes();
-      } else if (auth.isCustomer && auth.user != null) {
-        quotes.loadCustomerQuotes(auth.user!.email);
-      }
+      });
+      _initialized = true;
+    } else if (auth.isCustomer && auth.user != null) {
+      // Load quotes filtered by the logged-in user's email/name
+      final email = auth.user!.email;
+      final userId = auth.user!.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        quotes.loadCustomerQuotes(
+          customerEmail: email,
+          userId: userId,
+        );
+      });
       _initialized = true;
     }
   }
@@ -229,7 +243,7 @@ class _QuotesSection extends StatelessWidget {
 
         final items = quotes.quotes.take(5).toList();
         return Column(
-          children: items.map((q) => const _QuoteListTile()).toList(),
+          children: items.map((q) => _QuoteListTile(quote: q)).toList(),
         );
       },
     );
@@ -237,7 +251,9 @@ class _QuotesSection extends StatelessWidget {
 }
 
 class _QuoteListTile extends StatelessWidget {
-  const _QuoteListTile();
+  final Quote quote;
+
+  const _QuoteListTile({required this.quote});
 
   @override
   Widget build(BuildContext context) {
@@ -252,14 +268,24 @@ class _QuoteListTile extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
-          Text(
-            'Quote',
-            style: TextStyle(fontWeight: FontWeight.w600),
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Quote #${quote.id}',
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                quote.status,
+                style: const TextStyle(color: AppColors.mutedForeground),
+              ),
+            ],
           ),
           Text(
-            'View',
-            style: TextStyle(color: AppColors.mutedForeground),
+            '₱${quote.totalAmount.toStringAsFixed(2)}',
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ],
       ),
