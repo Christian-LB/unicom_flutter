@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:http/http.dart' as http;
 import '../models/product.dart';
 import '../models/quote.dart';
@@ -144,15 +143,12 @@ class ApiService {
     try {
       final productData = product.toJson();
       productData.remove('id');
-      print('DEBUG: createProduct Data: $productData');
-      print('DEBUG: createProduct Headers: $_headers');
+      
       final response = await http.post(
         Uri.parse('$baseUrl/products'),
         headers: _headers,
         body: jsonEncode(productData),
       );
-      print('DEBUG: createProduct Response Status: ${response.statusCode}');
-      print('DEBUG: createProduct Response Body: ${response.body}');
       
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
@@ -173,22 +169,19 @@ class ApiService {
         throw Exception(error['error'] ?? error['message'] ?? 'Failed to create product');
       }
     } catch (e) {
-      print('DEBUG: createProduct Exception: $e');
       throw Exception('Network error: $e');
     }
   }
   static Future<Product> updateProduct(String id, Map<String, dynamic> updates) async {
     try {
-      print('DEBUG: updateProduct ID: $id');
-      print('DEBUG: updateProduct Updates: $updates');
-      print('DEBUG: updateProduct Headers: $_headers');
       final response = await http.put(
         Uri.parse('$baseUrl/products/$id'),
         headers: _headers,
         body: jsonEncode(updates),
       );
-      print('DEBUG: updateProduct Response Status: ${response.statusCode}');
-      print('DEBUG: updateProduct Response Body: ${response.body}');
+
+      // Backend returns 400 but still updates the product successfully
+      // Accept both 200 and 400 as valid responses if the body contains product data
       if (response.statusCode == 200 || response.statusCode == 400) {
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic>) {
@@ -204,7 +197,6 @@ class ApiService {
         throw Exception(error['error'] ?? error['message'] ?? 'Failed to update product');
       }
     } catch (e) {
-      print('DEBUG: updateProduct Exception: $e');
       throw Exception('Network error: $e');
     }
   }
@@ -298,11 +290,8 @@ class ApiService {
         }
         uri = Uri.parse('$baseUrl/quotes').replace(queryParameters: queryParams);
       }
-      print('DEBUG: getQuotes URI: $uri');
-      print('DEBUG: getQuotes Headers: $_headers');
+
       final response = await http.get(uri, headers: _headers);
-      print('DEBUG: getQuotes Response Status: ${response.statusCode}');
-      print('DEBUG: getQuotes Response Body: ${response.body}');
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is List) {
@@ -345,16 +334,13 @@ class ApiService {
   static Future<Quote> updateQuote(String id, Map<String, dynamic> updates) async {
     try {
       final uri = Uri.parse('$baseUrl/quotes/$id');
-      print('DEBUG: updateQuote URI: $uri');
-      print('DEBUG: updateQuote Updates: $updates');
-      print('DEBUG: updateQuote Headers: $_headers');
+      
       final response = await http.put(
         uri,
         headers: _headers,
         body: jsonEncode(updates),
       );
-      print('DEBUG: updateQuote Response Status: ${response.statusCode}');
-      print('DEBUG: updateQuote Response Body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic>) {
@@ -371,7 +357,6 @@ class ApiService {
         throw Exception(error['error'] ?? error['message'] ?? 'Failed to update quote');
       }
     } catch (e) {
-      print('DEBUG: updateQuote Exception: $e');
       throw Exception('Network error: $e');
     }
   }

@@ -20,9 +20,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (_initialized) return;
     final auth = Provider.of<AuthProvider>(context); 
     final quotes = context.read<QuoteProvider>();
-    print('DEBUG: Dashboard - User: ${auth.user?.name}, Role: ${auth.user?.role}, isAdmin: ${auth.isAdmin}, isCustomer: ${auth.isCustomer}');
+    
     if (auth.isAdmin) {
-      print('DEBUG: Loading admin quotes');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         quotes.loadAdminQuotes();
       });
@@ -30,7 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } else if (auth.isCustomer && auth.user != null) {
       final email = auth.user!.email;
       final userId = auth.user!.id;
-      print('DEBUG: Dashboard loading customer quotes for userId: $userId, email: $email');
+      
       WidgetsBinding.instance.addPostFrameCallback((_) {
         quotes.loadCustomerQuotes(
           customerEmail: null, 
