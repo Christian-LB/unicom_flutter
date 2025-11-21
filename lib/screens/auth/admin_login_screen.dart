@@ -3,16 +3,13 @@ import '../../widgets/navigation_bar.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
-
 class AdminLoginScreen extends StatelessWidget {
   const AdminLoginScreen({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     String email = '';
     String password = '';
-
     return Scaffold(
       body: Column(
         children: [

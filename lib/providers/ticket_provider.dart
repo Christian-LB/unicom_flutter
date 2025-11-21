@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import '../models/ticket.dart';
 import '../services/api_service.dart';
-
 class TicketProvider extends ChangeNotifier {
   final List<Ticket> _tickets = [];
   bool _isLoading = false;
   String? _error;
-
   List<Ticket> get tickets => List.unmodifiable(_tickets);
   bool get isLoading => _isLoading;
   String? get error => _error;
-
   Future<void> fetchTickets({String? customerEmail, String? status}) async {
     _setLoading(true);
     _clearError();
@@ -29,7 +26,6 @@ class TicketProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
-
   Future<Ticket?> createTicket(Map<String, dynamic> payload) async {
     _setLoading(true);
     _clearError();
@@ -45,7 +41,6 @@ class TicketProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
-
   Future<Ticket?> updateTicket(String id, Map<String, dynamic> updates) async {
     _setLoading(true);
     _clearError();
@@ -64,20 +59,15 @@ class TicketProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
-
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
   }
-
   void _setError(String error) {
     _error = error;
     notifyListeners();
   }
-
   void _clearError() {
     _error = null;
   }
 }
-
-

@@ -6,17 +6,13 @@ import '../widgets/product_card.dart';
 import '../providers/product_provider.dart';
 import '../providers/compare_provider.dart';
 import '../theme/colors.dart';
-
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({Key? key}) : super(key: key);
-
   @override
   State<CatalogScreen> createState() => _CatalogScreenState();
 }
-
 class _CatalogScreenState extends State<CatalogScreen> {
   final TextEditingController _searchController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -24,20 +20,29 @@ class _CatalogScreenState extends State<CatalogScreen> {
       context.read<ProductProvider>().loadProducts();
     });
   }
-
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null && route.isCurrent) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          context.read<ProductProvider>().loadProducts();
+        }
+      });
+    }
+  }
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
           const CustomNavigationBar(),
-          // Catalog content
           Expanded(
             child: Center(
               child: ConstrainedBox(
@@ -48,12 +53,10 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     builder: (context, productProvider, child) {
                       return Column(
                         children: [
-                          // Search and filters
                           Container(
                             padding: const EdgeInsets.all(16),
                             child: Column(
                               children: [
-                                // Search bar
                                 TextField(
                                   controller: _searchController,
                                   decoration: const InputDecoration(
@@ -66,8 +69,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                   },
                                 ),
                                 const SizedBox(height: 16),
-
-                                // Category filter
                                 if (productProvider.categories.isNotEmpty)
                                   Row(
                                     children: [
@@ -156,8 +157,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
                               ],
                             ),
                           ),
-
-                          // Products grid
                           Expanded(
                             child: productProvider.isLoading
                                 ? const Center(

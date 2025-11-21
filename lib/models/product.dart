@@ -12,7 +12,6 @@ class Product {
   final int reviews;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-
   const Product({
     required this.id,
     required this.name,
@@ -28,7 +27,6 @@ class Product {
     this.createdAt,
     this.updatedAt,
   });
-
   factory Product.fromJson(Map<String, dynamic> json) {
   return Product(
     id: (json['id'] ?? json['_id'] ?? '').toString(),
@@ -52,7 +50,6 @@ class Product {
       : null,
   );
 }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -70,7 +67,6 @@ class Product {
       if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
     };
   }
-
   Product copyWith({
     String? id,
     String? name,
@@ -102,16 +98,13 @@ class Product {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is Product && other.id == id;
   }
-
   @override
   int get hashCode => id.hashCode;
-
   @override
   String toString() {
     return 'Product(id: $id, name: $name, price: $price, category: $category)';

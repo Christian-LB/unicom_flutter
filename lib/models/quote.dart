@@ -4,7 +4,6 @@ class QuoteItem {
   final int quantity;
   final double unitPrice;
   final String? customSpecs;
-
   const QuoteItem({
     required this.productId,
     required this.productName,
@@ -12,7 +11,6 @@ class QuoteItem {
     required this.unitPrice,
     this.customSpecs,
   });
-
   factory QuoteItem.fromJson(Map<String, dynamic> json) {
     return QuoteItem(
       productId: json['_id'] as String? ?? json['productId'] as String? ?? '',
@@ -22,7 +20,6 @@ class QuoteItem {
       customSpecs: json['customSpecs'] as String?,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'productId': productId,
@@ -32,9 +29,7 @@ class QuoteItem {
       if (customSpecs != null) 'customSpecs': customSpecs,
     };
   }
-
   double get totalPrice => quantity * unitPrice;
-
   QuoteItem copyWith({
     String? productId,
     String? productName,
@@ -50,22 +45,18 @@ class QuoteItem {
       customSpecs: customSpecs ?? this.customSpecs,
     );
   }
-
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is QuoteItem && other.productId == productId;
   }
-
   @override
   int get hashCode => productId.hashCode;
-
   @override
   String toString() {
     return 'QuoteItem(productId: $productId, productName: $productName, quantity: $quantity)';
   }
 }
-
 class Quote {
   final String id;
   final String customerName;
@@ -74,12 +65,11 @@ class Quote {
   final String? phone;
   final List<QuoteItem> items;
   final double totalAmount;
-  final String status; // 'pending', 'approved', 'rejected', 'expired'
+  final String status; 
   final String? notes;
   final DateTime createdAt;
   final DateTime expiresAt;
   final String? adminNotes;
-
   const Quote({
     required this.id,
     required this.customerName,
@@ -94,9 +84,7 @@ class Quote {
     required this.expiresAt,
     this.adminNotes,
   });
-
   factory Quote.fromJson(Map<String, dynamic> json) {
-    // Helper function to safely parse date strings
     DateTime _parseDate(dynamic date) {
       if (date == null) return DateTime.now();
       try {
@@ -105,7 +93,6 @@ class Quote {
         return DateTime.now();
       }
     }
-
     return Quote(
       id: (json['_id'] ?? json['id'] ?? '').toString(),
       customerName: (json['customerName'] ?? '').toString(),
@@ -135,7 +122,6 @@ class Quote {
       adminNotes: json['adminNotes']?.toString(),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -152,7 +138,6 @@ class Quote {
       if (adminNotes != null) 'adminNotes': adminNotes,
     };
   }
-
   Quote copyWith({
     String? id,
     String? customerName,
@@ -182,21 +167,17 @@ class Quote {
       adminNotes: adminNotes ?? this.adminNotes,
     );
   }
-
   bool get isExpired => DateTime.now().isAfter(expiresAt);
   bool get isPending => status == 'pending';
   bool get isApproved => status == 'approved';
   bool get isRejected => status == 'rejected';
-
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is Quote && other.id == id;
   }
-
   @override
   int get hashCode => id.hashCode;
-
   @override
   String toString() {
     return 'Quote(id: $id, customerName: $customerName, status: $status, totalAmount: $totalAmount)';

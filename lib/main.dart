@@ -12,6 +12,8 @@ import 'screens/quote_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/customer_quotes_screen.dart';
 import 'screens/admin_quotes_screen.dart';
+import 'screens/admin_products_screen.dart';
+import 'screens/product_form_screen.dart';
 import 'screens/inventory_screen.dart';
 import 'screens/analytics_screen.dart';
 import 'screens/auth/login_screen.dart';
@@ -27,14 +29,11 @@ import 'screens/admin_tickets_screen.dart';
 import 'screens/support_ticket_screen.dart';
 import 'screens/compare_screen.dart';
 import 'screens/catalog_detail_screen.dart';
-
 void main() {
   runApp(const UnicomApp());
 }
-
 class UnicomApp extends StatelessWidget {
   const UnicomApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -59,7 +58,6 @@ class UnicomApp extends StatelessWidget {
       ),
     );
   }
-
   GoRouter _createRouter(AuthProvider authProvider) {
     return GoRouter(
       initialLocation: '/',
@@ -68,21 +66,15 @@ class UnicomApp extends StatelessWidget {
         final isLoggingIn = state.matchedLocation == '/login' || 
                            state.matchedLocation == '/register' ||
                            state.matchedLocation == '/admin/login';
-        
-        // Redirect to login if not authenticated and trying to access protected routes
         if (!isLoggedIn && !isLoggingIn && _isProtectedRoute(state.matchedLocation)) {
           return '/login';
         }
-        
-        // Redirect to dashboard if logged in and trying to access auth pages
         if (isLoggedIn && isLoggingIn) {
           return authProvider.user!.role == 'admin' ? '/dashboard' : '/customer/home';
         }
-        
         return null;
       },
       routes: [
-        // Public routes
         GoRoute(
           path: '/',
           builder: (context, state) => const HomeScreen(),
@@ -111,8 +103,6 @@ class UnicomApp extends StatelessWidget {
           path: '/about',
           builder: (context, state) => const AboutScreen(),
         ),
-        
-        // Auth routes
         GoRoute(
           path: '/login',
           builder: (context, state) => const LoginScreen(),
@@ -125,8 +115,6 @@ class UnicomApp extends StatelessWidget {
           path: '/admin/login',
           builder: (context, state) => const AdminLoginScreen(),
         ),
-        
-        // Customer routes
         GoRoute(
           path: '/customer/home',
           builder: (context, state) => const HomeScreen(),
@@ -147,8 +135,6 @@ class UnicomApp extends StatelessWidget {
           path: '/support-ticket',
           builder: (context, state) => const SupportTicketScreen(),
         ),
-        
-        // Protected routes
         GoRoute(
           path: '/quote',
           builder: (context, state) => const QuoteScreen(),
@@ -161,11 +147,23 @@ class UnicomApp extends StatelessWidget {
           path: '/profile',
           builder: (context, state) => const ProfileScreen(),
         ),
-        
-        // Admin routes
         GoRoute(
-          path: '/quotes',
+          path: '/admin/quotes',
           builder: (context, state) => const AdminQuotesScreen(),
+        ),
+        GoRoute(
+          path: '/admin/products',
+          builder: (context, state) => const AdminProductsScreen(),
+        ),
+        GoRoute(
+          path: '/admin/products/new',
+          builder: (context, state) => const ProductFormScreen(),
+        ),
+        GoRoute(
+          path: '/admin/products/:id/edit',
+          builder: (context, state) => ProductFormScreen(
+            productId: state.pathParameters['id'],
+          ),
         ),
         GoRoute(
           path: '/admin/tickets',
@@ -182,7 +180,6 @@ class UnicomApp extends StatelessWidget {
       ],
     );
   }
-
   bool _isProtectedRoute(String location) {
     const protectedRoutes = [
       '/quote',
@@ -190,7 +187,10 @@ class UnicomApp extends StatelessWidget {
       '/dashboard',
       '/customer/quotes',
       '/customer/support',
-      '/quotes',
+      '/customer/tickets',
+      '/admin/quotes',
+      '/admin/products',
+      '/admin/tickets',
       '/inventory',
       '/analytics',
     ];

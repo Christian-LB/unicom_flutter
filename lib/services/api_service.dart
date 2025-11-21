@@ -4,35 +4,23 @@ import 'package:http/http.dart' as http;
 import '../models/product.dart';
 import '../models/quote.dart';
 import '../models/ticket.dart';
-
 class ApiService {
   // Render backend base URL
   static const String baseUrl = 'https://unicom-backend.onrender.com/api';
-  
   static String? _authToken;
-
-  // Set the auth token
   static void setAuthToken(String? token) {
     _authToken = token;
   }
-  
-  // Get the auth token
   static String? get authToken => _authToken;
-
-  // Get headers with auth token if available
   static Map<String, String> get _headers {
     final headers = {
       'Content-Type': 'application/json',
     };
-    
     if (_authToken != null && _authToken!.isNotEmpty) {
       headers['Authorization'] = 'Bearer $_authToken';
     }
-    
     return headers;
   }
-
-  // Auth endpoints
   static Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await http.post(
@@ -43,7 +31,6 @@ class ApiService {
           'password': password,
         }),
       );
-
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
@@ -54,7 +41,6 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
-
   static Future<Map<String, dynamic>> register({
     required String name,
     required String email,
@@ -74,7 +60,6 @@ class ApiService {
           if (phone != null) 'phone': phone,
         }),
       );
-
       if (response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
@@ -85,8 +70,6 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
-
-  // Product endpoints
   static Future<List<Product>> getProducts({
     String? search,
     String? category,
@@ -98,7 +81,6 @@ class ApiService {
       if (search != null && search.isNotEmpty) queryParams['q'] = search;
       if (category != null && category.isNotEmpty) queryParams['category'] = category;
       if (ids != null && ids.isNotEmpty) queryParams['ids'] = ids.join(',');
-
       final uri = Uri.parse('$baseUrl/products').replace(queryParameters: queryParams);
       final response = await http.get(
         uri,
@@ -109,7 +91,6 @@ class ApiService {
           throw Exception('Request timed out after ${timeout.inSeconds} seconds');
         },
       );
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is List) {
@@ -135,14 +116,12 @@ class ApiService {
       throw Exception('An unexpected error occurred: $e');
     }
   }
-
   static Future<Product> getProduct(String id) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/products/$id'),
         headers: _headers,
       );
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic> && data['product'] is Map<String, dynamic>) {
@@ -161,54 +140,80 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
-
   static Future<Product> createProduct(Product product) async {
     try {
+      final productData = product.toJson();
+      productData.remove('id');
+      print('DEBUG: createProduct Data: $productData');
+      print('DEBUG: createProduct Headers: $_headers');
       final response = await http.post(
         Uri.parse('$baseUrl/products'),
         headers: _headers,
-        body: jsonEncode(product.toJson()),
+        body: jsonEncode(productData),
       );
-
+      print('DEBUG: createProduct Response Status: ${response.statusCode}');
+      print('DEBUG: createProduct Response Body: ${response.body}');
+      
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        return Product.fromJson(data['product'] as Map<String, dynamic>);
+        
+        // Check if response has a 'product' wrapper or is the product directly
+        if (data is Map<String, dynamic>) {
+          if (data.containsKey('product')) {
+            return Product.fromJson(data['product'] as Map<String, dynamic>);
+          } else if (data.containsKey('_id') || data.containsKey('id')) {
+            // Response is the product object directly
+            return Product.fromJson(data);
+          }
+        }
+        
+        throw Exception('Unexpected response format');
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['error'] ?? 'Failed to create product');
+        throw Exception(error['error'] ?? error['message'] ?? 'Failed to create product');
       }
     } catch (e) {
+      print('DEBUG: createProduct Exception: $e');
       throw Exception('Network error: $e');
     }
   }
-
   static Future<Product> updateProduct(String id, Map<String, dynamic> updates) async {
     try {
+      print('DEBUG: updateProduct ID: $id');
+      print('DEBUG: updateProduct Updates: $updates');
+      print('DEBUG: updateProduct Headers: $_headers');
       final response = await http.put(
         Uri.parse('$baseUrl/products/$id'),
         headers: _headers,
         body: jsonEncode(updates),
       );
-
-      if (response.statusCode == 200) {
+      print('DEBUG: updateProduct Response Status: ${response.statusCode}');
+      print('DEBUG: updateProduct Response Body: ${response.body}');
+      if (response.statusCode == 200 || response.statusCode == 400) {
         final data = jsonDecode(response.body);
-        return Product.fromJson(data['product'] as Map<String, dynamic>);
+        if (data is Map<String, dynamic>) {
+          if (data.containsKey('product')) {
+            return Product.fromJson(data['product'] as Map<String, dynamic>);
+          } else if (data.containsKey('_id') || data.containsKey('id')) {
+            return Product.fromJson(data);
+          }
+        }
+        throw Exception('Unexpected response format');
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['error'] ?? 'Failed to update product');
+        throw Exception(error['error'] ?? error['message'] ?? 'Failed to update product');
       }
     } catch (e) {
+      print('DEBUG: updateProduct Exception: $e');
       throw Exception('Network error: $e');
     }
   }
-
   static Future<void> deleteProduct(String id) async {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/products/$id'),
         headers: _headers,
       );
-
       if (response.statusCode != 200) {
         final error = jsonDecode(response.body);
         throw Exception(error['error'] ?? 'Failed to delete product');
@@ -217,11 +222,8 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
-
-  // Quote endpoints
   static Future<Quote> createQuote(Quote quote) async {
     try {
-      // Convert quote to server-expected format
       final quoteData = {
         'customerName': quote.customerName,
         'customerEmail': quote.customerEmail,
@@ -238,27 +240,21 @@ class ApiService {
         'notes': quote.notes,
         'expiresAt': quote.expiresAt?.toIso8601String(),
       };
-
       final url = Uri.parse('$baseUrl/quotes');
       final body = jsonEncode(quoteData);
-      
       print('Sending request to: $url');
       print('Headers: $_headers');
       print('Request body: $body');
-      
       final response = await http.post(
         url,
         headers: _headers,
         body: body,
       );
-
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
-
       if (response.statusCode == 201) {
         try {
           final data = jsonDecode(response.body);
-          // Parse the response data directly since the server returns the quote at the top level
           return Quote.fromJson(data as Map<String, dynamic>);
         } catch (e) {
           throw Exception('Error parsing response: $e');
@@ -269,7 +265,6 @@ class ApiService {
           final errorData = jsonDecode(response.body);
           errorMessage = errorData['error'] ?? errorData['message'] ?? errorMessage;
         } catch (_) {
-          // If we can't parse the error response, use the raw response
           errorMessage = '${response.statusCode}: ${response.body}';
         }
         throw Exception(errorMessage);
@@ -280,7 +275,6 @@ class ApiService {
       throw Exception('Failed to create quote: $e');
     }
   }
-
   static Future<List<Quote>> getQuotes({
     String? customerEmail,
     String? customerName,
@@ -288,14 +282,10 @@ class ApiService {
     String? userId,
   }) async {
     try {
-      // If userId is provided, use the /quotes/my endpoint for customer-specific quotes
-      // Otherwise, use /quotes with query parameters for admin queries
       final Uri uri;
       if (userId != null && userId.isNotEmpty) {
-        // Customer endpoint - no query parameters needed (auth token identifies user)
         uri = Uri.parse('$baseUrl/quotes/my');
       } else {
-        // Admin endpoint - use query parameters for filtering
         final queryParams = <String, String>{};
         if (customerEmail != null && customerEmail.isNotEmpty) {
           queryParams['customerEmail'] = customerEmail;
@@ -308,15 +298,11 @@ class ApiService {
         }
         uri = Uri.parse('$baseUrl/quotes').replace(queryParameters: queryParams);
       }
-
       print('DEBUG: getQuotes URI: $uri');
       print('DEBUG: getQuotes Headers: $_headers');
-      
       final response = await http.get(uri, headers: _headers);
-
       print('DEBUG: getQuotes Response Status: ${response.statusCode}');
       print('DEBUG: getQuotes Response Body: ${response.body}');
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is List) {
@@ -338,14 +324,12 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
-
   static Future<Quote> getQuote(String id) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/quotes/$id'),
         headers: _headers,
       );
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return Quote.fromJson(data['quote'] as Map<String, dynamic>);
@@ -358,34 +342,45 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
-
   static Future<Quote> updateQuote(String id, Map<String, dynamic> updates) async {
     try {
+      final uri = Uri.parse('$baseUrl/quotes/$id');
+      print('DEBUG: updateQuote URI: $uri');
+      print('DEBUG: updateQuote Updates: $updates');
+      print('DEBUG: updateQuote Headers: $_headers');
       final response = await http.put(
-        Uri.parse('$baseUrl/quotes/$id'),
+        uri,
         headers: _headers,
         body: jsonEncode(updates),
       );
-
+      print('DEBUG: updateQuote Response Status: ${response.statusCode}');
+      print('DEBUG: updateQuote Response Body: ${response.body}');
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return Quote.fromJson(data['quote'] as Map<String, dynamic>);
+        if (data is Map<String, dynamic>) {
+          if (data.containsKey('quote') && data['quote'] != null) {
+            return Quote.fromJson(data['quote'] as Map<String, dynamic>);
+          }
+          else if (data.containsKey('_id') || data.containsKey('id')) {
+            return Quote.fromJson(data);
+          }
+        }
+        throw Exception('Unexpected response format');
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['error'] ?? 'Failed to update quote');
+        throw Exception(error['error'] ?? error['message'] ?? 'Failed to update quote');
       }
     } catch (e) {
+      print('DEBUG: updateQuote Exception: $e');
       throw Exception('Network error: $e');
     }
   }
-
   static Future<void> deleteQuote(String id) async {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/quotes/$id'),
         headers: _headers,
       );
-
       if (response.statusCode != 200) {
         final error = jsonDecode(response.body);
         throw Exception(error['error'] ?? 'Failed to delete quote');
@@ -394,8 +389,6 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
-
-  // Ticket endpoints
   static Future<Ticket> createTicket(Map<String, dynamic> payload) async {
     try {
       final response = await http.post(
@@ -403,7 +396,6 @@ class ApiService {
         headers: _headers,
         body: jsonEncode(payload),
       );
-
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         return Ticket.fromJson(data['ticket'] as Map<String, dynamic>);
@@ -415,7 +407,6 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
-
   static Future<List<Ticket>> getTickets({
     String? customerEmail,
     String? status,
@@ -424,10 +415,8 @@ class ApiService {
       final queryParams = <String, String>{};
       if (customerEmail != null) queryParams['customerEmail'] = customerEmail;
       if (status != null) queryParams['status'] = status;
-
       final uri = Uri.parse('$baseUrl/tickets').replace(queryParameters: queryParams);
       final response = await http.get(uri, headers: _headers);
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is List) {
@@ -449,7 +438,6 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
-
   static Future<Ticket> updateTicket(String id, Map<String, dynamic> updates) async {
     try {
       final response = await http.put(
@@ -457,7 +445,6 @@ class ApiService {
         headers: _headers,
         body: jsonEncode(updates),
       );
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return Ticket.fromJson(data['ticket'] as Map<String, dynamic>);
@@ -469,8 +456,6 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
-
-  // Utility methods
   static String getErrorMessage(dynamic error) {
     if (error is String) return error;
     if (error is Exception) return error.toString();

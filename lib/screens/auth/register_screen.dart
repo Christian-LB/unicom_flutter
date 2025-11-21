@@ -3,21 +3,17 @@ import '../../widgets/navigation_bar.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
-
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
-
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
-
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-
   @override
   void dispose() {
     _nameController.dispose();
@@ -26,7 +22,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _confirmPasswordController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,7 +105,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();

@@ -4,27 +4,22 @@ import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/colors.dart';
 import '../../widgets/navigation_bar.dart';
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
-
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
-
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Logo
                             Container(
                               width: 64,
                               height: 64,
@@ -61,8 +55,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             const SizedBox(height: 24),
-
-                            // Title
                             const Text(
                               'Welcome Back',
                               style: TextStyle(
@@ -79,8 +71,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             const SizedBox(height: 32),
-
-                            // Email field
                             TextFormField(
                               controller: _emailController,
                               decoration: const InputDecoration(
@@ -99,8 +89,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                             ),
                             const SizedBox(height: 16),
-
-                            // Password field
                             TextFormField(
                               controller: _passwordController,
                               decoration: InputDecoration(
@@ -128,8 +116,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                             ),
                             const SizedBox(height: 24),
-
-                            // Login button
                             Consumer<AuthProvider>(
                               builder: (context, authProvider, child) {
                                 return SizedBox(
@@ -155,8 +141,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 );
                               },
                             ),
-
-                            // Error message
                             Consumer<AuthProvider>(
                               builder: (context, authProvider, child) {
                                 if (authProvider.error != null) {
@@ -175,10 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 return const SizedBox.shrink();
                               },
                             ),
-
                             const SizedBox(height: 24),
-
-                            // Register link
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -189,10 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ],
                             ),
-
                             const SizedBox(height: 16),
-
-                            // Admin login link
                             TextButton(
                               onPressed: () => context.go('/admin/login'),
                               child: const Text('Admin Login'),
@@ -210,7 +188,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       final authProvider = context.read<AuthProvider>();
@@ -218,7 +195,6 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text.trim(),
         _passwordController.text,
       );
-
       if (success && mounted) {
         final user = authProvider.user;
         if (user != null) {

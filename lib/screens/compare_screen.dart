@@ -4,10 +4,8 @@ import '../widgets/navigation_bar.dart';
 import '../providers/compare_provider.dart';
 import '../models/product.dart';
 import '../theme/colors.dart';
-
 class CompareScreen extends StatelessWidget {
   const CompareScreen({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,13 +13,10 @@ class CompareScreen extends StatelessWidget {
         child: Column(
           children: [
             const CustomNavigationBar(centered: true),
-
-            /// 👇 Expanded prevents overall layout overflow
             Expanded(
               child: Consumer<CompareProvider>(
                 builder: (context, compareProvider, _) {
                   final products = compareProvider.products;
-
                   if (products.isEmpty) {
                     return const Center(
                       child: Padding(
@@ -37,17 +32,13 @@ class CompareScreen extends StatelessWidget {
                       ),
                     );
                   }
-
-                  // Collect all unique specification keys across all products
                   final allSpecs = <String>{};
                   for (final product in products) {
                     allSpecs.addAll(product.specifications.keys);
                   }
                   final sortedSpecs = allSpecs.toList()..sort();
-
                   return Column(
                     children: [
-                      // Header with clear button
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
@@ -69,14 +60,11 @@ class CompareScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-
-                      /// 👇 The fix: Wrap table + button inside scrollable Expanded view
                       Expanded(
                         child: SingleChildScrollView(
                           padding: const EdgeInsets.only(bottom: 32),
                           child: Column(
                             children: [
-                              // Horizontal scroll for table
                               SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: ConstrainedBox(
@@ -105,7 +93,6 @@ class CompareScreen extends StatelessWidget {
                                       ),
                                     ],
                                     rows: [
-                                      // Price row
                                       DataRow(
                                         cells: [
                                           const DataCell(Text(
@@ -127,8 +114,6 @@ class CompareScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-
-                                      // Brand row
                                       DataRow(
                                         cells: [
                                           const DataCell(Text(
@@ -142,8 +127,6 @@ class CompareScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-
-                                      // Availability row
                                       DataRow(
                                         cells: [
                                           const DataCell(Text(
@@ -176,8 +159,6 @@ class CompareScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-
-                                      // Specification rows
                                       ...sortedSpecs.map(
                                         (specKey) => DataRow(
                                           cells: [
@@ -207,7 +188,6 @@ class CompareScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-
                             ],
                           ),
                         ),
@@ -223,17 +203,14 @@ class CompareScreen extends StatelessWidget {
     );
   }
 }
-
 class _ProductHeader extends StatelessWidget {
   final Product product;
   final VoidCallback onRemove;
-
   const _ProductHeader({
     Key? key,
     required this.product,
     required this.onRemove,
   }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -246,7 +223,7 @@ class _ProductHeader extends StatelessWidget {
             height: 100,
             margin: const EdgeInsets.only(bottom: 8),
             child: Image.network(
-              product.image ?? 'https://via.placeholder.com/150',
+              product.image ?? 'https://via.placeholder.com/150x100?text=No+Image',
               fit: BoxFit.contain,
               errorBuilder: (_, __, ___) =>
                   const Icon(Icons.image_not_supported),

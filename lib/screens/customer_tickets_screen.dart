@@ -4,14 +4,11 @@ import '../widgets/navigation_bar.dart';
 import '../providers/auth_provider.dart';
 import '../providers/ticket_provider.dart';
 import '../theme/colors.dart';
-
 class CustomerTicketsScreen extends StatefulWidget {
   const CustomerTicketsScreen({Key? key}) : super(key: key);
-
   @override
   State<CustomerTicketsScreen> createState() => _CustomerTicketsScreenState();
 }
-
 class _CustomerTicketsScreenState extends State<CustomerTicketsScreen> {
   @override
   void initState() {
@@ -25,7 +22,6 @@ class _CustomerTicketsScreenState extends State<CustomerTicketsScreen> {
       }
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +60,6 @@ class _CustomerTicketsScreenState extends State<CustomerTicketsScreen> {
       ),
     );
   }
-
   Widget _buildStatusChip(String status) {
     Color bg = AppColors.muted;
     Color fg = AppColors.mutedForeground;
@@ -88,5 +83,3 @@ class _CustomerTicketsScreenState extends State<CustomerTicketsScreen> {
     );
   }
 }
-
-

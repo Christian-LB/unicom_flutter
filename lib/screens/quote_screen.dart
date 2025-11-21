@@ -5,21 +5,17 @@ import '../models/product.dart';
 import '../services/api_service.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/colors.dart';
-import '../widgets/navigation_bar.dart';  // Added import for CustomNavigationBar
+import '../widgets/navigation_bar.dart';  
 import 'package:provider/provider.dart';
 import '../providers/quote_provider.dart';
 import '../utils/export_pdf_stub.dart'
     if (dart.library.html) '../utils/export_pdf_web.dart';
-
 class QuoteScreen extends StatefulWidget {
   static const routeName = '/get-quote';
-
   const QuoteScreen({super.key});
-
   @override
   State<QuoteScreen> createState() => _QuoteScreenState();
 }
-
 class _QuoteScreenState extends State<QuoteScreen> {
   final _formKey = GlobalKey<FormState>();
   final _customerNameController = TextEditingController();
@@ -27,7 +23,6 @@ class _QuoteScreenState extends State<QuoteScreen> {
   final _companyController = TextEditingController();
   final _phoneController = TextEditingController();
   final _notesController = TextEditingController();
-
   final List<Map<String, dynamic>> _items = [
     {
       'productId': '',
@@ -37,10 +32,8 @@ class _QuoteScreenState extends State<QuoteScreen> {
       'customSpecs': ''
     }
   ];
-
   double _totalAmount = 0.0;
   bool _isLoading = false;
-
   Future<void> _exportQuote(String id) async {
     try {
       await exportQuotePdfById(id);
@@ -51,13 +44,11 @@ class _QuoteScreenState extends State<QuoteScreen> {
         SnackBar(content: Text('Failed to export PDF: $msg')),
       );
       if (msg.contains('Not authenticated') || msg.contains('401')) {
-        // Give the user a brief moment to see the snackbar, then redirect to login
         await Future.delayed(const Duration(milliseconds: 300));
         if (mounted) context.go('/login');
       }
     }
   }
-
   @override
   void dispose() {
     _customerNameController.dispose();
@@ -67,7 +58,6 @@ class _QuoteScreenState extends State<QuoteScreen> {
     _notesController.dispose();
     super.dispose();
   }
-
   void _addItem() {
     if (!mounted) return;
     setState(() {
@@ -80,17 +70,14 @@ class _QuoteScreenState extends State<QuoteScreen> {
       });
     });
   }
-
   void _removeItem(int index) {
     if (_items.length <= 1) return;
-
     if (!mounted) return;
     setState(() {
       _items.removeAt(index);
       _calculateTotal();
     });
   }
-
   void _updateItem(int index, String field, dynamic value) {
     if (!mounted) return;
     setState(() {
@@ -100,7 +87,6 @@ class _QuoteScreenState extends State<QuoteScreen> {
       }
     });
   }
-
   void _calculateTotal() {
     double total = 0;
     for (var item in _items) {
@@ -108,20 +94,16 @@ class _QuoteScreenState extends State<QuoteScreen> {
       final qty = item['quantity'] as int;
       total += price * qty;
     }
-
     if (!mounted) return;
     setState(() {
       _totalAmount = total;
     });
   }
-
   Future<List<Product>> _searchProducts(String query) async {
     if (query.isEmpty) return [];
-
     try {
       final products = await ApiService.getProducts(search: query)
           .timeout(const Duration(seconds: 10));
-
       if (!mounted) return [];
       return products;
     } catch (_) {
@@ -129,18 +111,14 @@ class _QuoteScreenState extends State<QuoteScreen> {
       return [];
     }
   }
-
   Future<void> _submitQuote() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
     if (!mounted) return;
     setState(() => _isLoading = true);
-
     try {
       final now = DateTime.now();
-
       final quoteItems = _items.map((item) {
         return QuoteItem(
           productId: item['productId'] ?? '',
@@ -150,7 +128,6 @@ class _QuoteScreenState extends State<QuoteScreen> {
           customSpecs: item['customSpecs'] as String?,
         );
       }).toList();
-
       final quote = Quote(
         id: '',
         customerName: _customerNameController.text.trim(),
@@ -168,28 +145,18 @@ class _QuoteScreenState extends State<QuoteScreen> {
         createdAt: now,
         expiresAt: now.add(const Duration(days: 30)),
       );
-
-      // Create the quote through the provider so the dashboard can immediately reflect the new item
       final created = await context.read<QuoteProvider>().createQuote(quote);
-
       if (!mounted) return;
-
-      // Dismiss any focused fields and associated overlays (e.g., Autocomplete)
       FocusScope.of(context).unfocus();
-
       if (created != null) {
-        final exportAction = SnackBarAction(
-          label: 'Export PDF',
-          onPressed: () => _exportQuote(created.id),
-        );
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Quote request submitted successfully!'),
-            action: exportAction,
+          const SnackBar(
+            content: Text('Quote request submitted successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
           ),
         );
         await Future.delayed(const Duration(milliseconds: 300));
-        // Stay on this page; Dashboard will show the new quote when visited next via provider state
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Failed to submit quote. Please try again.")),
@@ -197,7 +164,6 @@ class _QuoteScreenState extends State<QuoteScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to submit quote: $e")),
       );
@@ -207,7 +173,6 @@ class _QuoteScreenState extends State<QuoteScreen> {
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -306,8 +271,6 @@ class _QuoteScreenState extends State<QuoteScreen> {
                                           _updateItem(index, 'unitPrice', product.price);
                                         },
                                         fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                                          // Do not mutate controller.text during build; RawAutocomplete will
-                                          // manage text on selection. We only mirror user input to our state.
                                           return TextFormField(
                                             controller: controller,
                                             focusNode: focusNode,

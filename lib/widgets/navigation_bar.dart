@@ -3,20 +3,16 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
 import '../theme/colors.dart';
-
 class CustomNavigationBar extends StatelessWidget {
   final bool centered;
-  
   const CustomNavigationBar({Key? key, this.centered = false}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         final user = authProvider.user;
         final width = MediaQuery.of(context).size.width;
-        final bool isWideScreen = width >= 1024; // PC monitor breakpoint
-        
+        final bool isWideScreen = width >= 1024; 
         return Container(
           decoration: BoxDecoration(
             color: AppColors.background,
@@ -32,19 +28,16 @@ class CustomNavigationBar extends StatelessWidget {
             ],
           ),
           child: SizedBox(
-            height: 64, // h-16 equivalent
+            height: 64, 
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Left: Hamburger menu (mobile) or Logo (wide screens)
                   if (!isWideScreen)
                     _buildHamburgerMenu(context, user)
                   else
                     _buildLogo(context, user),
-                  
-                  // Center: Logo (mobile) or Navigation links (wide screens)
                   if (!isWideScreen)
                     Expanded(
                       child: Center(
@@ -57,8 +50,6 @@ class CustomNavigationBar extends StatelessWidget {
                         child: _buildNavigationLinks(context, user),
                       ),
                     ),
-                  
-                  // Right: Auth section (login/register or user/admin controls)
                   _buildAuthSection(context, user),
                 ],
               ),
@@ -68,7 +59,6 @@ class CustomNavigationBar extends StatelessWidget {
       },
     );
   }
-
   Widget _buildHamburgerMenu(BuildContext context, user) {
     final navItems = _getNavItems(user);
     return PopupMenuButton<String>(
@@ -94,7 +84,6 @@ class CustomNavigationBar extends StatelessWidget {
       onSelected: (route) => context.go(route),
     );
   }
-
   Widget _buildLogo(BuildContext context, user) {
     return GestureDetector(
       onTap: () {
@@ -150,10 +139,8 @@ class CustomNavigationBar extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildNavigationLinks(BuildContext context, user) {
     final navItems = _getNavItems(user);
-    
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: navItems.map((item) {
@@ -180,11 +167,10 @@ class CustomNavigationBar extends StatelessWidget {
       }).toList(),
     );
   }
-
   Widget _buildAuthSection(BuildContext context, user) {
     if (user == null) {
       final width = MediaQuery.of(context).size.width;
-      final bool isSmall = width < 640; // mobile breakpoint (approx. tailwind sm)
+      final bool isSmall = width < 640; 
       if (isSmall) {
         return PopupMenuButton<String>(
           tooltip: 'Account',
@@ -225,7 +211,6 @@ class CustomNavigationBar extends StatelessWidget {
           onSelected: (value) => context.go('/$value'),
         );
       }
-      // Wide screens: show inline buttons consistent with theme
       return Row(
         children: [
           TextButton(
@@ -270,7 +255,6 @@ class CustomNavigationBar extends StatelessWidget {
       return _buildAdminDropdown(context, user);
     }
   }
-
   Widget _buildAdminDropdown(BuildContext context, user) {
     return PopupMenuButton<String>(
       child: CircleAvatar(
@@ -346,7 +330,6 @@ class CustomNavigationBar extends StatelessWidget {
       },
     );
   }
-
   Widget _buildLogoutButton(BuildContext context) {
     return TextButton.icon(
       onPressed: () {
@@ -360,7 +343,6 @@ class CustomNavigationBar extends StatelessWidget {
       ),
     );
   }
-
   List<Map<String, String>> _getNavItems(user) {
     if (user == null) {
       return [
@@ -387,9 +369,7 @@ class CustomNavigationBar extends StatelessWidget {
       ];
     }
   }
-
   bool _isActiveRoute(BuildContext context, String route) {
-    // Fallback to GoRouterState for broader version compatibility
     final currentLocation = GoRouterState.of(context).matchedLocation;
     if (route == '/') {
       return currentLocation == '/';

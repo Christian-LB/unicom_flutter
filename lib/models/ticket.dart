@@ -3,10 +3,10 @@ class Ticket {
   final String customerName;
   final String customerEmail;
   final String subject;
-  final String issueType; // technical | billing | general | product | other
+  final String issueType; 
   final String description;
-  final String priority; // low | medium | high | urgent
-  final String status; // open | in_progress | resolved | closed
+  final String priority; 
+  final String status; 
   final List<String>? attachments;
   final String? adminNotes;
   final String? assignedTo;
@@ -14,7 +14,6 @@ class Ticket {
   final DateTime updatedAt;
   final DateTime? resolvedAt;
   final DateTime? closedAt;
-
   const Ticket({
     required this.id,
     required this.customerName,
@@ -32,7 +31,6 @@ class Ticket {
     this.resolvedAt,
     this.closedAt,
   });
-
   factory Ticket.fromJson(Map<String, dynamic> json) {
     return Ticket(
       id: json['id'] as String,
@@ -52,7 +50,6 @@ class Ticket {
       closedAt: json['closedAt'] != null ? DateTime.parse(json['closedAt'] as String) : null,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -73,5 +70,3 @@ class Ticket {
     };
   }
 }
-
-

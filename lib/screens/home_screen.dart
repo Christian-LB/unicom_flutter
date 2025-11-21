@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/navigation_bar.dart';
 import '../theme/colors.dart';
-
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,13 +26,11 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildHeroSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 16),
       child: Column(
         children: [
-          // Badge
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
@@ -51,8 +47,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          
-          // Main heading
           const Text(
             'Your One-Stop Shop for\nElectronics & IT Solutions',
             textAlign: TextAlign.center,
@@ -63,8 +57,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          
-          // Subtitle
           const Text(
             'Quality computer parts, accessories, and expert technical support for individuals and businesses. Reliable products, personalized service, cost-efficient solutions.',
             textAlign: TextAlign.center,
@@ -75,8 +67,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 32),
-          
-          // CTA Buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -112,7 +102,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildFeaturesSection() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 16),
@@ -138,15 +127,13 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 48),
-          
           LayoutBuilder(
             builder: (context, constraints) {
               final double maxWidth = constraints.maxWidth;
-              double tileWidth = 360; // preferred card width
+              double tileWidth = 360; 
               const double spacing = 24;
               int columns = (maxWidth / (tileWidth + spacing)).floor().clamp(1, 4);
               tileWidth = (maxWidth - (spacing * (columns - 1))) / columns;
-
               return Wrap(
                 spacing: spacing,
                 runSpacing: spacing,
@@ -183,7 +170,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildFeatureCard({
     required IconData icon,
     required String title,
@@ -230,7 +216,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildCategoriesSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 16),
@@ -252,18 +237,13 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 48),
-          
           LayoutBuilder(
             builder: (context, constraints) {
-              // Responsive tile width: aim for 3 columns on wide screens, reduce on narrow
               final double maxWidth = constraints.maxWidth;
-              double tileWidth = 360; // preferred width per card
+              double tileWidth = 360; 
               final double spacing = 24;
-
-              // Ensure at least 1 card per row; cap at available width
               int columns = (maxWidth / (tileWidth + spacing)).floor().clamp(1, 4);
               tileWidth = (maxWidth - (spacing * (columns - 1))) / columns;
-
               return Wrap(
                 spacing: spacing,
                 runSpacing: spacing,
@@ -303,7 +283,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildCategoryCard(
     BuildContext context, {
     required IconData icon,
@@ -362,7 +341,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildCTASection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 16),
@@ -404,7 +382,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildFooter() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 16),
@@ -417,11 +394,10 @@ class HomeScreen extends StatelessWidget {
           LayoutBuilder(
             builder: (context, constraints) {
               final double maxWidth = constraints.maxWidth;
-              double tileWidth = 320; // preferred column width
+              double tileWidth = 320; 
               const double spacing = 32;
               int columns = (maxWidth / (tileWidth + spacing)).floor().clamp(1, 4);
               tileWidth = (maxWidth - (spacing * (columns - 1))) / columns;
-
               return Wrap(
                 spacing: spacing,
                 runSpacing: spacing,
@@ -495,7 +471,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildFooterColumn({
     required String title,
     required List<Widget> children,
@@ -515,7 +490,6 @@ class HomeScreen extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildFooterLink(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),

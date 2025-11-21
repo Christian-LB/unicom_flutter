@@ -3,28 +3,23 @@ import 'package:provider/provider.dart';
 import '../widgets/navigation_bar.dart';
 import '../providers/auth_provider.dart';
 import '../providers/ticket_provider.dart';
-
 class SupportTicketScreen extends StatefulWidget {
   const SupportTicketScreen({Key? key}) : super(key: key);
-
   @override
   State<SupportTicketScreen> createState() => _SupportTicketScreenState();
 }
-
 class _SupportTicketScreenState extends State<SupportTicketScreen> {
   final _formKey = GlobalKey<FormState>();
   String issueType = 'general';
   String priority = 'medium';
   String subject = '';
   String description = '';
-
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final email = auth.user?.email ?? '';
     final name = auth.user?.name ?? '';
     final provider = context.watch<TicketProvider>();
-
     return Scaffold(
       body: Column(
         children: [
@@ -123,5 +118,3 @@ class _SupportTicketScreenState extends State<SupportTicketScreen> {
     );
   }
 }
-
-

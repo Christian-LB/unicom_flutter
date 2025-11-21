@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'colors.dart';
-
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
@@ -144,7 +143,6 @@ class AppTheme {
       ),
     );
   }
-
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
@@ -152,7 +150,6 @@ class AppTheme {
         seedColor: AppColors.primary,
         brightness: Brightness.dark,
       ),
-      // Dark theme customization would go here
     );
   }
 }

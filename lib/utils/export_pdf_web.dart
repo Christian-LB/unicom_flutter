@@ -3,17 +3,13 @@ import 'dart:html' as html;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
-
 Future<void> exportQuotePdfById(String id) async {
   final uri = Uri.parse('${ApiService.baseUrl}/quotes/export/$id');
   final headers = <String, String>{
     'Accept': 'application/pdf',
   };
-
   var token = ApiService.authToken;
   var hasToken = token != null && token.isNotEmpty;
-
-  // If the in-memory token is missing, try to recover from SharedPreferences (web -> localStorage)
   if (!hasToken) {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -24,21 +20,14 @@ Future<void> exportQuotePdfById(String id) async {
         hasToken = true;
       }
     } catch (_) {
-      // ignore: avoid_print
       print('[exportQuotePdfById] Failed to read cached token');
     }
   }
-
-  // Simple console hint to aid debugging without exposing the token
-  // ignore: avoid_print
   print('[exportQuotePdfById] tokenPresent=$hasToken id=$id');
-
   if (!hasToken) {
     throw Exception('Not authenticated. Please sign in to export the PDF.');
   }
-
   headers['Authorization'] = 'Bearer $token';
-
   final res = await http.get(uri, headers: headers);
   if (res.statusCode >= 200 && res.statusCode < 300) {
     final blob = html.Blob([res.bodyBytes], 'application/pdf');
@@ -47,7 +36,6 @@ Future<void> exportQuotePdfById(String id) async {
       ..target = '_blank'
       ..download = 'quote-$id.pdf';
     anchor.click();
-    // Keep the object URL alive for a short while so DevTools/new tab can access it
     Timer(const Duration(seconds: 60), () => html.Url.revokeObjectUrl(url));
   } else {
     final body = res.body;

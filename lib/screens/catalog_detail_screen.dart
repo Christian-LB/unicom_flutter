@@ -2,26 +2,21 @@ import 'package:flutter/material.dart';
 import '../widgets/navigation_bar.dart';
 import '../services/api_service.dart';
 import '../models/product.dart';
-
 class CatalogDetailScreen extends StatefulWidget {
   final String id;
   const CatalogDetailScreen({Key? key, required this.id}) : super(key: key);
-
   @override
   State<CatalogDetailScreen> createState() => _CatalogDetailScreenState();
 }
-
 class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
   Product? product;
   bool loading = true;
   String? error;
-
   @override
   void initState() {
     super.initState();
     _load();
   }
-
   Future<void> _load() async {
     setState(() { loading = true; error = null; });
     try {
@@ -33,7 +28,6 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
       setState(() { loading = false; });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,5 +60,3 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
     );
   }
 }
-
-

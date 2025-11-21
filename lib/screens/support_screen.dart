@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/navigation_bar.dart';
 import 'package:go_router/go_router.dart';
-
 class SupportScreen extends StatelessWidget {
   const SupportScreen({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -2,12 +2,11 @@ class User {
   final String id;
   final String email;
   final String name;
-  final String role; // 'admin' or 'customer'
+  final String role; 
   final String? company;
   final String? phone;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-
   const User({
     required this.id,
     required this.email,
@@ -18,7 +17,6 @@ class User {
     this.createdAt,
     this.updatedAt,
   });
-
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as String,
@@ -35,7 +33,6 @@ class User {
         : null,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -48,7 +45,6 @@ class User {
       if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
     };
   }
-
   User copyWith({
     String? id,
     String? email,
@@ -70,7 +66,6 @@ class User {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -80,7 +75,6 @@ class User {
         other.name == name &&
         other.role == role;
   }
-
   @override
   int get hashCode {
     return id.hashCode ^
@@ -88,7 +82,6 @@ class User {
         name.hashCode ^
         role.hashCode;
   }
-
   @override
   String toString() {
     return 'User(id: $id, email: $email, name: $name, role: $role)';

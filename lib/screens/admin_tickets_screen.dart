@@ -3,17 +3,13 @@ import 'package:provider/provider.dart';
 import '../widgets/navigation_bar.dart';
 import '../providers/ticket_provider.dart';
 import '../theme/colors.dart';
-
 class AdminTicketsScreen extends StatefulWidget {
   const AdminTicketsScreen({Key? key}) : super(key: key);
-
   @override
   State<AdminTicketsScreen> createState() => _AdminTicketsScreenState();
 }
-
 class _AdminTicketsScreenState extends State<AdminTicketsScreen> {
   String _statusFilter = '';
-
   @override
   void initState() {
     super.initState();
@@ -21,7 +17,6 @@ class _AdminTicketsScreenState extends State<AdminTicketsScreen> {
       context.read<TicketProvider>().fetchTickets();
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +88,6 @@ class _AdminTicketsScreenState extends State<AdminTicketsScreen> {
       ),
     );
   }
-
   Widget _buildStatusChip(String status) {
     Color bg = AppColors.muted;
     Color fg = AppColors.mutedForeground;
@@ -116,7 +110,6 @@ class _AdminTicketsScreenState extends State<AdminTicketsScreen> {
       child: Text(status, style: TextStyle(color: fg, fontWeight: FontWeight.w600)),
     );
   }
-
   Future<void> _openUpdateDialog(BuildContext context, String id) async {
     String status = 'in_progress';
     String adminNotes = '';
@@ -167,5 +160,3 @@ class _AdminTicketsScreenState extends State<AdminTicketsScreen> {
     );
   }
 }
-
-
